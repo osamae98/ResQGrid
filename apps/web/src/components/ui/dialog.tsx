@@ -1,6 +1,6 @@
 "use client";
 
-import * as D from "@radix-ui/react-dialog";
+import { Dialog as D } from "radix-ui";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useT } from "@/lib/i18n";
@@ -9,7 +9,7 @@ export const Dialog = D.Root;
 export const DialogTrigger = D.Trigger;
 export const DialogClose = D.Close;
 
-export function DialogContent({ className, children, title, description, side }: { className?: string; children: React.ReactNode; title: string; description?: string; side?: "bottom" }) {
+export function DialogContent({ className, children, title, description }: { className?: string; children: React.ReactNode; title: string; description?: string }) {
   const tr = useT();
   return (
     <D.Portal>
@@ -19,9 +19,7 @@ export function DialogContent({ className, children, title, description, side }:
         {...(description ? {} : { "aria-describedby": undefined })}
         className={cn(
           "fixed z-[1001] flex max-h-[90dvh] flex-col gap-4 overflow-y-auto border bg-card p-5 text-card-foreground shadow-xl",
-          side === "bottom"
-            ? "inset-x-0 bottom-0 rounded-t-2xl"
-            : "start-1/2 top-1/2 w-[calc(100%-2rem)] max-w-lg -translate-y-1/2 rounded-xl ltr:-translate-x-1/2 rtl:translate-x-1/2",
+          "start-1/2 top-1/2 w-[calc(100%-2rem)] max-w-lg -translate-y-1/2 rounded-xl ltr:-translate-x-1/2 rtl:translate-x-1/2",
           className,
         )}
       >

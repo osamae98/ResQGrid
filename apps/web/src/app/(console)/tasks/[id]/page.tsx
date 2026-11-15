@@ -236,7 +236,7 @@ function TaskActions({ t }: { t: Task }) {
         <Button
           variant="outline"
           size="sm"
-          title={tr("Recorded as an action on behalf of the team")}
+          tooltip={tr("Recorded as an action on behalf of the team")}
           onClick={() => {
             if (onBehalf === "complete") return setCompleteOpen(true);
             run.mutate(() => (onBehalf === "accept" ? api.tasks.accept(t.id) : onBehalf === "en_route" ? api.tasks.enRoute(t.id) : api.tasks.onSite(t.id)));

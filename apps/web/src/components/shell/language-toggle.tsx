@@ -15,8 +15,7 @@ export function LanguageToggle({ compact, className }: { compact?: boolean; clas
       size={compact ? "icon" : "sm"}
       className={cn(className)}
       onClick={() => setLocale(other.code)}
-      aria-label={compact ? `Switch language: ${other.label}` : undefined}
-      title={other.label}
+      aria-label={compact ? other.label : undefined}
       lang={other.code}
     >
       <Languages /> {compact ? null : other.label}

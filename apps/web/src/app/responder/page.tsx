@@ -11,7 +11,7 @@ import { NewReportDialog } from "@/components/dispatch/new-report-dialog";
 import { LiveMap } from "@/components/map/live-map";
 import { LiveBadge, SoundBanner } from "@/components/shell/app-shell";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Field, Input, Textarea } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { api, errorMessage } from "@/lib/api";
@@ -352,8 +352,12 @@ function DeclineSheet({ open, onOpenChange, onSubmit }: { open: boolean; onOpenC
   const [reason, setReason] = useState("");
   const quick = ["Already on another case", "Vehicle problem", "Can't reach the location", "Missing equipment"];
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent side="bottom" title={tr("Decline task")} description={tr("The dispatcher gets a fresh suggestion right away.")}>
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent side="bottom" className="max-h-[90dvh] gap-4 overflow-y-auto rounded-t-2xl p-5">
+        <SheetHeader className="p-0 text-start">
+          <SheetTitle>{tr("Decline task")}</SheetTitle>
+          <SheetDescription>{tr("The dispatcher gets a fresh suggestion right away.")}</SheetDescription>
+        </SheetHeader>
         <div className="grid gap-2">
           {quick.map((q) => (
             <button key={q} className={cn("h-12 rounded-lg border px-3 text-start text-sm", reason === q && "border-primary bg-primary/10")} onClick={() => setReason(q)}>
@@ -372,8 +376,8 @@ function DeclineSheet({ open, onOpenChange, onSubmit }: { open: boolean; onOpenC
         <Button size="lg" variant="destructive" className="h-12" disabled={!reason.trim()} aria-describedby={!reason.trim() ? "decline-missing" : undefined} onClick={() => onSubmit(reason)}>
           {tr("Decline")}
         </Button>
-      </DialogContent>
-    </Dialog>
+      </SheetContent>
+    </Sheet>
   );
 }
 
@@ -392,8 +396,12 @@ function CompleteSheet({ task: t, open, onOpenChange, onDone }: { task: Task; op
   });
   const short = note.trim().length < 10;
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent side="bottom" title={tr("Complete task")} description={dateTime(new Date().toISOString())}>
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent side="bottom" className="max-h-[90dvh] gap-4 overflow-y-auto rounded-t-2xl p-5">
+        <SheetHeader className="p-0 text-start">
+          <SheetTitle>{tr("Complete task")}</SheetTitle>
+          <SheetDescription>{dateTime(new Date().toISOString())}</SheetDescription>
+        </SheetHeader>
         <div className="grid gap-2" role="radiogroup" aria-label={tr("Outcome")}>
           {OUTCOMES.map((o) => (
             <button key={o} role="radio" aria-checked={outcome === o} className={cn("h-12 rounded-lg border px-3 text-start text-sm font-medium", outcome === o && "border-primary bg-primary/10 text-primary")} onClick={() => setOutcome(o)}>
@@ -434,7 +442,7 @@ function CompleteSheet({ task: t, open, onOpenChange, onDone }: { task: Task; op
         >
           <CheckCircle2 /> {tr("Complete")}
         </Button>
-      </DialogContent>
-    </Dialog>
+      </SheetContent>
+    </Sheet>
   );
 }

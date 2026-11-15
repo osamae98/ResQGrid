@@ -35,7 +35,7 @@ export function NewReportDialog({ open, onOpenChange }: { open: boolean; onOpenC
   const qc = useQueryClient();
   const router = useRouter();
   const [loc, setLoc] = useState<LatLng>();
-  const { register, handleSubmit, formState, reset } = useForm<Form>({ resolver: zodResolver(schema), defaultValues: { category: "medical", priority: "" } });
+  const { register, handleSubmit, formState, reset, watch, setValue } = useForm<Form>({ resolver: zodResolver(schema), defaultValues: { category: "medical", priority: "" } });
   const create = useMutation({
     mutationFn: (f: z.output<typeof schema>) => api.reports.create({ ...f, priority: f.priority || undefined, location: loc! }),
     onSuccess: (r) => {
@@ -53,7 +53,7 @@ export function NewReportDialog({ open, onOpenChange }: { open: boolean; onOpenC
       <DialogContent title={tr("New report")} description={tr("For calls, walk-ins and field reports. Click the map to set the location.")} className="max-w-2xl">
         <form className="grid gap-3 sm:grid-cols-2" onSubmit={handleSubmit((f) => (loc ? create.mutate(f as z.output<typeof schema>) : toast.error(tr("Set the location on the map"))))}>
           <Field label={tr("Category")}>
-            <Select {...register("category")}>
+            <Select value={watch("category")} onChange={(e) => setValue("category", e.target.value as Form["category"])}>
               {CATEGORIES.map((c) => (
                 <option key={c} value={c}>
                   {tr(CATEGORY_LABEL[c])}
@@ -62,7 +62,7 @@ export function NewReportDialog({ open, onOpenChange }: { open: boolean; onOpenC
             </Select>
           </Field>
           <Field label={tr("Priority")} hint={tr("Leave on default to apply the category rule")}>
-            <Select {...register("priority")}>
+            <Select value={watch("priority") ?? ""} onChange={(e) => setValue("priority", e.target.value as Form["priority"])}>
               <option value="">{tr("Category default")}</option>
               {PRIORITIES.map((p) => (
                 <option key={p} value={p}>

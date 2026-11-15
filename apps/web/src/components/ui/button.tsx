@@ -1,4 +1,5 @@
-import { Slot } from "@radix-ui/react-slot";
+import { Slot } from "radix-ui";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./tooltip";
 import { cva, type VariantProps } from "class-variance-authority";
 import * as React from "react";
 import { cn } from "@/lib/utils";
@@ -30,11 +31,21 @@ const buttonVariants = cva(
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> {
   asChild?: boolean;
+  /** Tooltip text. Icon-only buttons (size="icon") get their aria-label as a tooltip automatically. */
+  tooltip?: React.ReactNode;
 }
 
-export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(({ className, variant, size, asChild, ...props }, ref) => {
-  const Comp = asChild ? Slot : "button";
-  return <Comp ref={ref} className={cn(buttonVariants({ variant, size }), className)} {...props} />;
+export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(({ className, variant, size, asChild, tooltip, ...props }, ref) => {
+  const Comp = asChild ? Slot.Root : "button";
+  const el = <Comp ref={ref} className={cn(buttonVariants({ variant, size }), className)} {...props} />;
+  const tip = tooltip ?? (size === "icon" ? props["aria-label"] : undefined);
+  if (!tip) return el;
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>{el}</TooltipTrigger>
+      <TooltipContent>{tip}</TooltipContent>
+    </Tooltip>
+  );
 });
 Button.displayName = "Button";
 export { buttonVariants };

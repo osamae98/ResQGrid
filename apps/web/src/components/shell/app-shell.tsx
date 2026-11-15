@@ -1,7 +1,7 @@
 "use client";
 
 import type { Role } from "@resqgrid/api-client";
-import * as DM from "@radix-ui/react-dropdown-menu";
+import { DropdownMenu as DM } from "radix-ui";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   BarChart3,
@@ -37,7 +37,7 @@ import { Logo } from "./logo";
 import { api } from "@/lib/api";
 import { DEMO_MODE } from "@/lib/flags";
 import { ago, CATEGORY_LABEL, ROLE_LABEL } from "@/lib/format";
-import { useI18n, useT } from "@/lib/i18n";
+import { useT } from "@/lib/i18n";
 import { useNotifications } from "@/lib/queries";
 import { playCriticalSound, unlockSound, useRealtime, useRealtimeEvent, useSoundReady } from "@/lib/realtime";
 import { useSession } from "@/lib/session";
@@ -145,7 +145,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 }
 
 function TopBar({ onMenu, menuOpen }: { onMenu: () => void; menuOpen: boolean }) {
-  const { dir } = useI18n();
   const tr = useT();
   const { user } = useSession();
   const { theme, toggle } = useConsoleTheme();
@@ -173,7 +172,7 @@ function TopBar({ onMenu, menuOpen }: { onMenu: () => void; menuOpen: boolean })
       </Link>
       <div className="ms-auto flex items-center gap-1">
         {DEMO_MODE && user && (user.role === "dispatcher" || user.role === "admin") ? (
-          <Button variant="outline" size="sm" onClick={() => simulate.mutate()} disabled={simulate.isPending} title={tr("Mock only: send a critical public report from Nasr City")}>
+          <Button variant="outline" size="sm" onClick={() => simulate.mutate()} disabled={simulate.isPending} tooltip={tr("Mock only: send a critical public report from Nasr City")}>
             <Zap />
             <span className="hidden lg:inline">{tr("Simulate critical report")}</span>
           </Button>
@@ -184,7 +183,7 @@ function TopBar({ onMenu, menuOpen }: { onMenu: () => void; menuOpen: boolean })
         <Button variant="ghost" size="icon" onClick={toggle} aria-label={tr("Toggle dark mode")}>
           {theme === "dark" ? <Sun /> : <Moon />}
         </Button>
-        <DM.Root dir={dir}>
+        <DM.Root>
           <DM.Trigger asChild>
             <Button variant="ghost" size="sm" className="max-w-40">
               <span className="truncate">{user?.name}</span>
@@ -253,7 +252,6 @@ export function LiveBadge({ className }: { className?: string }) {
 }
 
 function NotificationBell() {
-  const { dir } = useI18n();
   const tr = useT();
   const { data } = useNotifications();
   const router = useRouter();
@@ -261,7 +259,7 @@ function NotificationBell() {
   const unread = data?.filter((n) => !n.read_at).length ?? 0;
   const readAll = useMutation({ mutationFn: api.notifications.readAll, onSuccess: () => qc.invalidateQueries({ queryKey: ["notifications"] }) });
   return (
-    <DM.Root dir={dir}>
+    <DM.Root>
       <DM.Trigger asChild>
         <Button variant="ghost" size="icon" className="relative" aria-label={`${tr("Notifications")}, ${unread} ${tr("unread")}`}>
           <Bell />

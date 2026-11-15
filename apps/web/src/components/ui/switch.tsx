@@ -1,6 +1,6 @@
 "use client";
 
-import * as S from "@radix-ui/react-switch";
+import { Switch as S } from "radix-ui";
 import { cn } from "@/lib/utils";
 
 export function Switch({ className, ...p }: S.SwitchProps) {
