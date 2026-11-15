@@ -1,0 +1,11 @@
+{
+  "name": "resqgrid",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm --filter @resqgrid/web dev",
+    "build": "pnpm --filter @resqgrid/web build",
+    "lint": "pnpm --filter @resqgrid/web lint",
+    "typecheck": "pnpm -r typecheck"
+  },
+  "packageManager": "pnpm@10.34.5"
+}
