@@ -11,6 +11,7 @@ import {
   FileText,
   House,
   LayoutDashboard,
+  Lock,
   LogOut,
   Map as MapIcon,
   Menu,
@@ -36,11 +37,11 @@ import { LanguageToggle } from "./language-toggle";
 import { Logo } from "./logo";
 import { api } from "@/lib/api";
 import { DEMO_MODE } from "@/lib/flags";
-import { ago, CATEGORY_LABEL, ROLE_LABEL } from "@/lib/format";
+import { ago, CATEGORY_LABEL, initials, ROLE_LABEL } from "@/lib/format";
 import { useT } from "@/lib/i18n";
 import { useNotifications } from "@/lib/queries";
 import { playCriticalSound, unlockSound, useRealtime, useRealtimeEvent, useSoundReady } from "@/lib/realtime";
-import { useSession } from "@/lib/session";
+import { homeFor, useSession } from "@/lib/session";
 import { useConsoleTheme } from "@/lib/theme";
 import { cn } from "@/lib/utils";
 
@@ -85,6 +86,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   });
 
   const items = NAV.filter((n) => user && n.roles.includes(user.role));
+  // The nav hides pages a role can't use; this also covers typing the URL directly.
+  const section = NAV.find((n) => pathname === n.href || pathname.startsWith(n.href + "/"));
+  const blocked = !!user && !!section && !section.roles.includes(user.role);
 
   // Mobile menu: Esc closes it, and so does a route change (e.g. browser back).
   useEffect(() => {
@@ -138,7 +142,24 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </a>
           </div>
         </nav>
-        <main className="min-h-0 min-w-0 flex-1 overflow-auto">{children}</main>
+        <main className="min-h-0 min-w-0 flex-1 overflow-auto">
+          {blocked ? (
+            <div className="grid h-full place-items-center p-6">
+              <div className="flex max-w-sm flex-col items-center gap-3 text-center">
+                <span className="grid size-12 place-items-center rounded-full bg-muted text-muted-foreground">
+                  <Lock className="size-5" aria-hidden />
+                </span>
+                <h1 className="text-lg font-semibold">{tr("You don't have access to this page")}</h1>
+                <p className="text-sm text-muted-foreground">{tr("Your role can't open this page. Ask an admin if you need it.")}</p>
+                <Button asChild variant="outline">
+                  <Link href={homeFor(user?.role)}>{tr("Go to my home page")}</Link>
+                </Button>
+              </div>
+            </div>
+          ) : (
+            children
+          )}
+        </main>
       </div>
     </div>
   );
@@ -170,7 +191,7 @@ function TopBar({ onMenu, menuOpen }: { onMenu: () => void; menuOpen: boolean })
       <Link href="/" aria-label={tr("ResQGrid home")}>
         <Logo hideWordmark="sm" />
       </Link>
-      <div className="ms-auto flex items-center gap-1">
+      <div className="ms-auto flex min-w-0 items-center gap-1">
         {DEMO_MODE && user && (user.role === "dispatcher" || user.role === "admin") ? (
           <Button variant="outline" size="sm" onClick={() => simulate.mutate()} disabled={simulate.isPending} tooltip={tr("Mock only: send a critical public report from Nasr City")}>
             <Zap />
@@ -185,13 +206,18 @@ function TopBar({ onMenu, menuOpen }: { onMenu: () => void; menuOpen: boolean })
         </Button>
         <DM.Root>
           <DM.Trigger asChild>
-            <Button variant="ghost" size="sm" className="max-w-40">
-              <span className="truncate">{user?.name}</span>
+            <Button variant="ghost" size="sm" className="max-w-40 max-sm:px-1" aria-label={`${tr("Account")}: ${user?.name ?? ""}`}>
+              {/* Phones get initials so the bar fits; the full name is in the menu and the label. */}
+              <span aria-hidden className="grid size-7 place-items-center rounded-full bg-primary/15 text-[11px] font-semibold text-primary sm:hidden">
+                {initials(user?.name ?? "").slice(0, 2)}
+              </span>
+              <span className="truncate max-sm:hidden">{user?.name}</span>
             </Button>
           </DM.Trigger>
           <DM.Portal>
             <DM.Content align="end" className="z-[1100] min-w-48 rounded-md border bg-card p-1 text-sm shadow-lg">
               <div className="px-2 py-1.5 text-xs text-muted-foreground">
+                <span className="block text-sm font-medium text-foreground">{user?.name}</span>
                 {user?.email}
                 <br />
                 {user ? tr(ROLE_LABEL[user.role]) : ""}

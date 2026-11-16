@@ -305,6 +305,17 @@ export interface Notification {
   created_at: ISODate;
 }
 
+/** Someone you can @mention: everyone signed in can see this list (no emails). */
+export interface DirectoryUser {
+  id: ID;
+  name: string;
+  role: Role;
+  team_name?: string;
+}
+
+/** Mentions are stored in the comment body as @[Display Name](user_id) so they resolve to one person. */
+export const MENTION_RE = /@\[([^\]\n]{1,80})\]\(([A-Za-z0-9_-]{1,40})\)/g;
+
 export interface Comment {
   id: ID;
   parent_type: "report" | "task" | "incident";

@@ -6,7 +6,7 @@ import { Archive, ArchiveRestore, Ban, Camera, CheckCheck, Copy, ExternalLink, E
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { CategoryLabel, PRIORITY_MARK, PriorityBadge, ReportStatusBadge, TaskStatusBadge } from "@/components/domain/badges";
+import { CategoryLabel, PriorityBadge, PriorityIcon, ReportStatusBadge, TaskStatusBadge } from "@/components/domain/badges";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ConfirmButton } from "@/components/ui/confirm";
@@ -56,8 +56,8 @@ export function ReportPanel({ reportId, onClose, showFullLink = true }: { report
           </p>
         </div>
         {showFullLink ? (
-          <Button asChild variant="ghost" size="icon" aria-label={tr("Open full report")}>
-            <Link href={`/reports/${r.id}`}>
+          <Button asChild variant="ghost" size="icon" aria-label={tr("Open full report in a new tab")}>
+            <Link href={`/reports/${r.id}`} target="_blank" rel="noopener">
               <ExternalLink />
             </Link>
           </Button>
@@ -282,12 +282,12 @@ function TriageForm({ r }: { r: Report }) {
             aria-checked={priority === p}
             onClick={() => setPriority(p)}
             className={cn(
-              "flex flex-col items-center rounded-md border py-1.5 text-xs font-medium",
+              "flex flex-col items-center gap-0.5 rounded-md border py-1.5 text-xs font-medium",
               priority === p ? (p === "medium" ? "bg-medium text-black" : `bg-${p} border-transparent text-white`) : "hover:bg-accent",
             )}
             style={priority === p ? { background: `var(--p-${p})` } : undefined}
           >
-            <span className="font-black">{PRIORITY_MARK[p]}</span>
+            <PriorityIcon priority={p} className="size-4" />
             {tr(PRIORITY_LABEL[p])}
           </button>
         ))}
@@ -381,7 +381,7 @@ function QuickEdit({ r }: { r: Report }) {
         <Select value={priority} onChange={(e) => setDraft((d) => ({ ...d, priority: e.target.value as Priority }))}>
           {PRIORITIES.map((p) => (
             <option key={p} value={p}>
-              {PRIORITY_MARK[p]} {tr(PRIORITY_LABEL[p])}
+              <PriorityIcon priority={p} /> {tr(PRIORITY_LABEL[p])}
             </option>
           ))}
         </Select>

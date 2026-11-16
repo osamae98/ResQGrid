@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input, Select } from "@/components/ui/input";
 import { LoadError, PageHeader } from "@/components/ui/misc";
 import { api } from "@/lib/api";
-import { dateTime } from "@/lib/format";
+import { dateTime, AUDIT_ACTION_LABEL, AUDIT_AREA_LABEL } from "@/lib/format";
 import { useT } from "@/lib/i18n";
 
 const ACTIONS = ["", "report", "task", "resource", "stock", "shelter", "pii", "export", "override", "user", "org"];
@@ -26,13 +26,13 @@ export default function AuditPage() {
         <Select className="w-44" value={action} onChange={(e) => setAction(e.target.value)} aria-label={tr("Action")}>
           {ACTIONS.map((a) => (
             <option key={a} value={a}>
-              {a ? `${a}.*` : tr("All actions")}
+              {tr(AUDIT_AREA_LABEL[a] ?? a)}
             </option>
           ))}
         </Select>
         <Input className="w-64" value={q} onChange={(e) => setQ(e.target.value)} placeholder={tr("Filter by actor or text")} aria-label={tr("Filter")} />
       </div>
-      <div className="overflow-x-auto rounded-lg border bg-card">
+      <div className="relative overflow-x-auto rounded-lg border bg-card">
         <table className="w-full text-sm">
           <thead className="border-b bg-muted/50 text-xs text-muted-foreground">
             <tr>
@@ -47,10 +47,10 @@ export default function AuditPage() {
               <Fragment key={a.id}>
                 <tr className="cursor-pointer border-b hover:bg-accent/40" onClick={() => setOpen(open === a.id ? undefined : a.id)}>
                   <td className="whitespace-nowrap px-3 py-2 text-xs tabular-nums text-muted-foreground">{dateTime(a.created_at)}</td>
-                  <td className="px-3 py-2">{a.actor_name}</td>
+                  <td className="px-3 py-2" dir="auto">{a.actor_name}</td>
                   <td className="px-3 py-2">
-                    <Badge variant={a.action.startsWith("pii") ? "warning" : a.action.includes("override") ? "danger" : "outline"} className="font-mono">
-                      {a.action}
+                    <Badge variant={a.action.startsWith("pii") ? "warning" : a.action.includes("override") ? "danger" : "outline"} title={a.action}>
+                      {tr(AUDIT_ACTION_LABEL[a.action] ?? a.action)}
                     </Badge>
                   </td>
                   <td className="px-3 py-2" dir="auto">{a.summary}</td>

@@ -2,6 +2,10 @@
 
 import type { Category, Priority, ReportStatus, TaskStatus, Team } from "@resqgrid/api-client";
 import {
+  ChevronDown,
+  ChevronsUp,
+  CircleAlert,
+  Minus,
   CheckCircle2,
   CircleDashed,
   CircleDot,
@@ -27,13 +31,19 @@ import { useT } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 // Never colour alone: priority and status always carry icon/mark + label + colour (§13.1).
-export const PRIORITY_MARK: Record<Priority, string> = { critical: "!!", high: "!", medium: "–", low: "↓" };
+/** Priority icons (shape + colour, so priority never relies on colour alone): alert, ⇈, −, ⌄. */
+export const PRIORITY_ICON: Record<Priority, typeof Flame> = { critical: CircleAlert, high: ChevronsUp, medium: Minus, low: ChevronDown };
+
+export function PriorityIcon({ priority, className }: { priority: Priority; className?: string }) {
+  const Icon = PRIORITY_ICON[priority];
+  return <Icon aria-hidden className={cn("size-3.5 shrink-0", className)} strokeWidth={2.5} />;
+}
 
 export function PriorityBadge({ priority, className, compact }: { priority: Priority; className?: string; compact?: boolean }) {
   const t = useT();
   return (
     <Badge variant={priority} className={cn("font-semibold", className)}>
-      <span aria-hidden className="font-black">{PRIORITY_MARK[priority]}</span>
+      <PriorityIcon priority={priority} />
       {compact ? <span className="sr-only">{t(PRIORITY_LABEL[priority])}</span> : t(PRIORITY_LABEL[priority])}
     </Badge>
   );
@@ -54,14 +64,14 @@ export function CategoryLabel({ category, className, iconOnly }: { category: Cat
   const t = useT();
   const Icon = CATEGORY_ICON[category];
   return (
-    <span className={cn("inline-flex items-center gap-1 text-xs text-muted-foreground", className)} title={t(CATEGORY_LABEL[category])}>
+    <span className={cn("inline-flex shrink-0 items-center gap-1 whitespace-nowrap text-xs text-muted-foreground", className)} title={t(CATEGORY_LABEL[category])}>
       <Icon className="size-3.5 shrink-0" aria-hidden />
       {iconOnly ? <span className="sr-only">{t(CATEGORY_LABEL[category])}</span> : t(CATEGORY_LABEL[category])}
     </span>
   );
 }
 
-const REPORT_STATUS_ICON: Record<ReportStatus, typeof Clock> = {
+export const REPORT_STATUS_ICON: Record<ReportStatus, typeof Clock> = {
   new: CircleDot,
   triaged: CircleDashed,
   assigned: Truck,

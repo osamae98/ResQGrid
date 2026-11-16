@@ -162,7 +162,7 @@ function UsersTab() {
           <p className="w-full text-xs text-muted-foreground">{tr("Invitation links expire after 72 hours. Deactivating a user revokes their sessions immediately.")}</p>
         </CardContent>
       </Card>
-      <div className="overflow-x-auto rounded-lg border bg-card">
+      <div className="relative overflow-x-auto rounded-lg border bg-card">
         <table className="w-full text-sm">
           <thead className="border-b bg-muted/50 text-xs text-muted-foreground">
             <tr>
@@ -271,7 +271,7 @@ function EscalationTab() {
         <CardTitle>{tr("Escalation thresholds (minutes)")}</CardTitle>
         <CardDescription>{tr("Level 1 alerts dispatchers; critical tasks reach level 2 (admins) after a second interval.")}</CardDescription>
       </CardHeader>
-      <CardContent className="overflow-x-auto">
+      <CardContent className="relative overflow-x-auto">
         <table className="w-full text-sm">
           <thead className="text-xs text-muted-foreground">
             <tr className="border-b">

@@ -79,7 +79,7 @@ export function ReportQueue({
   return (
     <div className="flex h-full min-h-0 flex-col">
       <div className="flex flex-col gap-2 border-b p-2">
-        <div className="grid grid-cols-3 gap-1 rounded-lg bg-muted p-1 text-xs" role="tablist" aria-label={tr("Queue filter")}>
+        <div className="flex gap-1 rounded-lg bg-muted p-1 text-xs" role="tablist" aria-label={tr("Queue filter")}>
           {(
             [
               ["action", "Needs action"],
@@ -92,9 +92,20 @@ export function ReportQueue({
               role="tab"
               aria-selected={filter === k}
               onClick={() => setFilter(k)}
-              className={cn("rounded-md px-2 py-1 font-medium text-muted-foreground", filter === k && "bg-card text-foreground shadow-xs")}
+              className={cn(
+                "flex flex-auto items-center justify-center gap-1.5 whitespace-nowrap rounded-md px-2 py-1.5 font-medium text-muted-foreground transition-colors hover:text-foreground",
+                filter === k && "bg-card text-foreground shadow-xs",
+              )}
             >
-              {tr(label)} <span className="tabular-nums opacity-70">{counts[k]}</span>
+              <span>{tr(label)}</span>
+              <span
+                className={cn(
+                  "min-w-5 shrink-0 rounded-full px-1.5 text-center text-[11px] font-semibold tabular-nums leading-5",
+                  filter === k ? (k === "action" && counts[k] ? "bg-critical text-white" : "bg-primary/10 text-primary") : "bg-foreground/10",
+                )}
+              >
+                {counts[k]}
+              </span>
             </button>
           ))}
         </div>

@@ -35,6 +35,8 @@ export const useResources = (enabled = true) => useQuery({ queryKey: qk.resource
 export const useShelters = () => useQuery({ queryKey: qk.shelters, queryFn: api.shelters.list });
 export const useIncidents = () => useQuery({ queryKey: qk.incidents, queryFn: api.incidents.list });
 export const useKpis = () => useQuery({ queryKey: qk.kpis, queryFn: api.analytics.live });
+/** People you can @mention (names and roles only); changes rarely. */
+export const useDirectory = () => useQuery({ queryKey: ["directory"], queryFn: api.org.directory, staleTime: 5 * 60_000 });
 export const useCapabilities = () => useQuery({ queryKey: ["capabilities"], queryFn: api.teams.capabilities, staleTime: 60_000 });
 export const useCategoryRules = () => useQuery({ queryKey: ["category-rules"], queryFn: api.teams.categoryRules, staleTime: 60_000 });
 export const useNotifications = () => useQuery({ queryKey: qk.notifications, queryFn: api.notifications.list });

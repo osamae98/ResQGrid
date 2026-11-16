@@ -1,7 +1,7 @@
 "use client";
 
 import { CATEGORIES, PRIORITIES, REPORT_STATUSES, type Category, type Priority, type ReportStatus } from "@resqgrid/api-client";
-import { Layers, Link2 } from "lucide-react";
+import { Check, Layers, Link2 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useMemo } from "react";
 import { toast } from "sonner";
@@ -83,7 +83,7 @@ function FullMap() {
           center={org?.operating_area.center}
           zoom={13}
         />
-        <div className="absolute end-3 top-3 z-[500] flex w-64 flex-col gap-3 rounded-lg border bg-card/95 p-3 text-sm shadow-lg backdrop-blur">
+        <div className="absolute end-3 top-3 z-[500] flex w-80 max-w-[calc(100%-1.5rem)] flex-col gap-3 rounded-lg border bg-card/95 p-3 text-sm shadow-lg backdrop-blur">
           <div className="flex items-center justify-between">
             <span className="inline-flex items-center gap-1.5 font-medium">
               <Layers className="size-4" /> {tr("Layers & filters")}
@@ -106,14 +106,18 @@ function FullMap() {
                 key={k}
                 aria-pressed={layers[k]}
                 onClick={() => toggleLayer(k)}
-                className={cn("rounded-full border px-2 py-0.5 text-xs", layers[k] ? "border-primary bg-primary/10 text-primary" : "text-muted-foreground")}
+                className={cn(
+                  "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs transition-colors",
+                  layers[k] ? "border-primary bg-primary/10 text-primary" : "border-dashed border-muted-foreground/50 text-muted-foreground hover:text-foreground",
+                )}
               >
+                {layers[k] ? <Check className="size-3" aria-hidden /> : null}
                 {tr(LAYER_LABEL[k])}
               </button>
             ))}
           </div>
           <div className="grid grid-cols-2 gap-2">
-            <Select aria-label={tr("Status")} value={status ?? ""} onChange={(e) => set("status", e.target.value)}>
+            <Select aria-label={tr("Status")} className="px-2.5 text-xs" value={status ?? ""} onChange={(e) => set("status", e.target.value)}>
               <option value="">{tr("Open statuses")}</option>
               {REPORT_STATUSES.map((s) => (
                 <option key={s} value={s}>
@@ -121,7 +125,7 @@ function FullMap() {
                 </option>
               ))}
             </Select>
-            <Select aria-label={tr("Priority")} value={priority ?? ""} onChange={(e) => set("priority", e.target.value)}>
+            <Select aria-label={tr("Priority")} className="px-2.5 text-xs" value={priority ?? ""} onChange={(e) => set("priority", e.target.value)}>
               <option value="">{tr("All priorities")}</option>
               {PRIORITIES.map((p) => (
                 <option key={p} value={p}>
@@ -129,7 +133,7 @@ function FullMap() {
                 </option>
               ))}
             </Select>
-            <Select aria-label={tr("Category")} value={category ?? ""} onChange={(e) => set("category", e.target.value)}>
+            <Select aria-label={tr("Category")} className="px-2.5 text-xs" value={category ?? ""} onChange={(e) => set("category", e.target.value)}>
               <option value="">{tr("All categories")}</option>
               {CATEGORIES.map((c) => (
                 <option key={c} value={c}>
@@ -137,7 +141,7 @@ function FullMap() {
                 </option>
               ))}
             </Select>
-            <Select aria-label={tr("Team")} value={teamId ?? ""} onChange={(e) => set("team", e.target.value)}>
+            <Select aria-label={tr("Team")} className="px-2.5 text-xs" value={teamId ?? ""} onChange={(e) => set("team", e.target.value)}>
               <option value="">{tr("All teams")}</option>
               {teams.data?.map((t) => (
                 <option key={t.id} value={t.id}>
@@ -145,7 +149,7 @@ function FullMap() {
                 </option>
               ))}
             </Select>
-            <Select aria-label={tr("Incident")} className="col-span-2" value={incidentId ?? ""} onChange={(e) => set("incident", e.target.value)}>
+            <Select aria-label={tr("Incident")} className="col-span-2 px-2.5 text-xs" value={incidentId ?? ""} onChange={(e) => set("incident", e.target.value)}>
               <option value="">{tr("All incidents")}</option>
               {incidents.data?.map((i) => (
                 <option key={i.id} value={i.id}>

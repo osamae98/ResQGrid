@@ -78,18 +78,18 @@ export default function ResponderHome() {
           </Button>
         </div>
         <div className="flex items-center gap-3">
-          <label className="flex flex-1 items-center gap-2 text-sm font-medium">
+          <label className="flex shrink-0 items-center gap-2 whitespace-nowrap text-sm font-medium">
             <Switch checked={onDuty} onCheckedChange={(v) => duty.mutate(v)} disabled={duty.isPending} aria-label={t("On duty")} />
             {onDuty ? t("On duty") : t("Off duty")}
           </label>
           <span
             className={cn(
-              "inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium",
+              "ms-auto inline-flex min-w-0 items-center gap-1.5 rounded-2xl px-2.5 py-1 text-xs font-medium leading-tight",
               sharing.state === "on" ? "bg-available/15 text-available" : onDuty ? "bg-high/15 text-high" : "bg-muted text-muted-foreground",
             )}
             role="status"
           >
-            {sharing.state === "on" ? <MapPin className="size-3.5" /> : <MapPinOff className="size-3.5" />}
+            {sharing.state === "on" ? <MapPin className="size-3.5 shrink-0" /> : <MapPinOff className="size-3.5 shrink-0" />}
             {sharing.state === "on"
               ? `${t("Location sharing on")}${sharing.queued ? ` · ${sharing.queued} ${t("queued")}` : ""}`
               : sharing.state === "denied"
@@ -301,11 +301,11 @@ function CurrentTask({ task: t, teamLocation }: { task: Task; teamLocation?: { l
       <div className="relative h-48 border-y">
         <LiveMap
           reports={[{ id: t.report_id, reference_code: t.report.reference_code, title: t.report.title, priority: t.report.priority, category: t.report.category, status: "in_progress", location: t.report.location } as never]}
-          teams={teamLocation ? [{ id: "me", name: "You", availability: "busy", is_stale: false, last_location: teamLocation, capabilities: [] } as never] : []}
+          teams={teamLocation ? [{ id: "me", name: tr("You"), availability: "busy", is_stale: false, last_location: teamLocation, capabilities: [] } as never] : []}
           center={t.report.location}
           zoom={14}
         />
-        <a href={mapsUrl} target="_blank" rel="noreferrer" className="absolute bottom-2 end-2 z-[500] inline-flex h-10 items-center gap-1 rounded-full bg-card px-4 text-sm font-medium shadow-md">
+        <a href={mapsUrl} target="_blank" rel="noreferrer" className="absolute end-2 top-2 z-[500] inline-flex h-10 items-center gap-1 rounded-full bg-card px-4 text-sm font-medium shadow-md">
           {tr("Open in Maps")} <ChevronRight className="size-4 rtl:rotate-180" />
         </a>
       </div>

@@ -2,6 +2,7 @@
 import {
   ACTIVE_TASK_STATUSES,
   CATEGORIES,
+  MENTION_RE,
   type Category,
   type CategoryRule,
   type Comment,
@@ -116,6 +117,13 @@ on("PATCH", "/api/v1/org", (ctx, _p, req) => {
   S.audit(ctx, "org.updated", "organization", org.id, "Updated organisation settings");
   return org;
 });
+// Mention picker: any signed-in member can see who they can @mention. Names, roles and teams only.
+on("GET", "/api/v1/users/directory", (ctx) =>
+  tenant(ctx.db.users, ctx)
+    .filter((u) => u.is_active)
+    .map((u) => ({ id: u.id, name: u.name, role: u.role, team_name: ctx.db.teams.find((t) => t.id === u.team_id)?.name }))
+    .sort((a, b) => a.name.localeCompare(b.name)),
+);
 on("GET", "/api/v1/users", (ctx) => {
   S.requireRole(ctx, ["admin", "volunteer_coordinator"]);
   return tenant(ctx.db.users, ctx).map(toUser);
@@ -384,8 +392,11 @@ for (const parent of ["report", "task", "incident"] as const) {
   on("POST", `/api/v1/${parent}s/:id/comments`, (ctx, p, req) => {
     const body = String(req.body.body ?? "").trim();
     if (!body) throw new HttpError(422, "VALIDATION_ERROR", "Comment can't be empty");
-    const names = [...body.matchAll(/@([\p{L}]+)/gu)].map((m) => m[1].toLowerCase());
-    const mentioned = tenant(ctx.db.users, ctx).filter((u) => names.includes(u.name.split(" ")[0].toLowerCase()));
+    // @[Name](user_id) tokens from the mention picker resolve by id; bare @firstname is kept for older comments.
+    const ids = [...body.matchAll(MENTION_RE)].map((m) => m[2]);
+    const plain = body.replace(MENTION_RE, "");
+    const names = [...plain.matchAll(/@([\p{L}]+)/gu)].map((m) => m[1].toLowerCase());
+    const mentioned = tenant(ctx.db.users, ctx).filter((u) => u.is_active && u.id !== ctx.user.id && (ids.includes(u.id) || names.includes(u.name.split(" ")[0].toLowerCase())));
     const c: Comment & { organization_id: ID } = {
       id: newId("cmt"),
       organization_id: ctx.orgId,
@@ -398,7 +409,7 @@ for (const parent of ["report", "task", "incident"] as const) {
     };
     ctx.db.comments.push(c);
     const link = parent === "task" ? `/tasks/${p.id}` : parent === "report" ? `/reports/${p.id}` : `/incidents/${p.id}`;
-    S.notify(ctx.db, ctx.orgId, mentioned.map((u) => u.id), { type: "comment.mention", title: `${ctx.user.name} mentioned you`, body, link });
+    S.notify(ctx.db, ctx.orgId, mentioned.map((u) => u.id), { type: "comment.mention", title: `${ctx.user.name} mentioned you`, body: body.replace(MENTION_RE, "@$1"), link });
     publish(ctx.db, ctx.orgId, "comment.created", c.id, strip(c), { roles: ["admin", "dispatcher", "responder", "volunteer_coordinator", "viewer"] });
     return { status: 201, body: strip(c) };
   });

@@ -5,11 +5,21 @@ import { PRIORITY_LABEL, REPORT_STATUS_LABEL } from "@/lib/format";
 import type { LatLng, Report, Resource, Shelter, Team } from "@resqgrid/api-client";
 import L from "leaflet";
 import { useEffect, useMemo } from "react";
-import { Circle, MapContainer, Marker, Polyline, TileLayer, Tooltip, useMap, useMapEvents } from "react-leaflet";
-import { PRIORITY_MARK } from "@/components/domain/badges";
+import { Circle, MapContainer, Marker, Polyline, TileLayer, Tooltip, useMap, useMapEvents, ZoomControl } from "react-leaflet";
 import { ago, initials } from "@/lib/format";
 import { ALL_LAYERS, type LiveMapProps } from "./map-types";
-import { useT } from "@/lib/i18n";
+import { useI18n, useT } from "@/lib/i18n";
+
+// Same shapes as PriorityIcon (lucide paths), as markup because Leaflet divIcons take HTML strings.
+const svg = (paths: string, size = 14) =>
+  `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths}</svg>`;
+const PRIORITY_PIN = {
+  critical: svg('<path d="M12 6v7"/><path d="M12 18h.01"/>'),
+  high: svg('<path d="m17 11-5-5-5 5"/><path d="m17 18-5-5-5 5"/>'),
+  medium: svg('<path d="M6 12h12"/>'),
+  low: svg('<path d="m6 9 6 6 6-6"/>'),
+};
+const HOUSE = svg('<path d="M3 10.5 12 3l9 7.5"/><path d="M5 9v11h14V9"/>', 12);
 
 const priorityVar = { critical: "var(--p-critical)", high: "var(--p-high)", medium: "var(--p-medium)", low: "var(--p-low)" };
 
@@ -18,7 +28,7 @@ function reportIcon(r: Report, selected: boolean) {
     className: "rq-icon",
     iconSize: [26, 26],
     iconAnchor: [4, 26],
-    html: `<div class="rq-report st-${r.status} ${selected ? "selected" : ""}" style="background:${priorityVar[r.priority]}"><span>${PRIORITY_MARK[r.priority]}</span></div>`,
+    html: `<div class="rq-report st-${r.status} ${selected ? "selected" : ""}" style="background:${priorityVar[r.priority]}"><span>${PRIORITY_PIN[r.priority]}</span></div>`,
   });
 }
 
@@ -44,11 +54,14 @@ function unitIcon(r: Resource) {
 
 function shelterIcon(s: Shelter) {
   const free = Math.max(0, s.capacity - s.occupancy);
+  const label = s.status === "closed" ? "×" : String(free);
+  // Width follows the number so "129" never wraps under the icon.
+  const w = 32 + label.length * 7;
   return L.divIcon({
     className: "rq-icon",
-    iconSize: [40, 22],
-    iconAnchor: [20, 11],
-    html: `<div class="rq-shelter ${s.status}">⌂ ${s.status === "closed" ? "×" : free}</div>`,
+    iconSize: [w, 22],
+    iconAnchor: [w / 2, 11],
+    html: `<div class="rq-shelter ${s.status}">${HOUSE}<span>${label}</span></div>`,
   });
 }
 
@@ -56,7 +69,7 @@ const pickIcon = L.divIcon({
   className: "rq-icon",
   iconSize: [26, 26],
   iconAnchor: [4, 26],
-  html: `<div class="rq-report" style="background:var(--primary)"><span>●</span></div>`,
+  html: `<div class="rq-report" style="background:var(--primary)"><span><i class="rq-dot"></i></span></div>`,
 });
 
 function Focus({ to }: { to?: LatLng }) {
@@ -102,6 +115,7 @@ export default function LeafletMap({
   className,
 }: LiveMapProps) {
   const tr = useT();
+  const { dir } = useI18n();
   const reportById = useMemo(() => new Map(reports.map((r) => [r.id, r])), [reports]);
   const activeLines = useMemo(
     () =>
@@ -113,7 +127,9 @@ export default function LeafletMap({
   );
 
   return (
-    <MapContainer center={[center.lat, center.lng]} zoom={zoom} className={className ?? "h-full w-full"} zoomControl attributionControl>
+    <MapContainer center={[center.lat, center.lng]} zoom={zoom} className={className ?? "h-full w-full"} zoomControl={false} attributionControl>
+      {/* Zoom sits at the start edge so overlays anchored to the end (map filters) never cover it, in LTR and RTL. */}
+      <ZoomControl position={dir === "rtl" ? "topright" : "topleft"} zoomInTitle={tr("Zoom in")} zoomOutTitle={tr("Zoom out")} key={dir} />
       <InvalidateOnResize />
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'

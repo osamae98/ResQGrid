@@ -30,10 +30,10 @@ export function MapLegend() {
   const dot = (c: string) => <span className="inline-block size-3 rounded-full" style={{ background: c }} />;
   return (
     <ul className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
-      {item(dot("var(--p-critical)"), "Critical !!")}
-      {item(dot("var(--p-high)"), "High !")}
-      {item(dot("var(--p-medium)"), "Medium –")}
-      {item(dot("var(--p-low)"), "Low ↓")}
+      {item(dot("var(--p-critical)"), "Critical")}
+      {item(dot("var(--p-high)"), "High")}
+      {item(dot("var(--p-medium)"), "Medium")}
+      {item(dot("var(--p-low)"), "Low")}
       {item(<span className="inline-block size-3 rotate-45 bg-available" />, "Team available")}
       {item(<span className="inline-block size-3 rotate-45 bg-busy" />, "Team busy")}
       {item(<span className="inline-block size-3 rotate-45 bg-stale" />, "Stale / off duty")}

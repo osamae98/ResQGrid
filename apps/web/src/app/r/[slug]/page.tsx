@@ -310,11 +310,10 @@ export default function PublicReportPage({ params }: { params: Promise<{ slug: s
       ) : null}
 
       <div className="sticky bottom-0 mt-6 flex flex-wrap gap-2 bg-background py-3">
-        {missing ? (
-          <p id="form-missing" className="w-full text-center text-xs text-muted-foreground" aria-live="polite">
-            {missing}
-          </p>
-        ) : null}
+        {/* Always rendered so the buttons don't jump up under the user's thumb when the hint clears. */}
+        <p id="form-missing" className="min-h-4 w-full text-center text-xs text-muted-foreground" aria-live="polite">
+          {missing}
+        </p>
         {step > 0 ? (
           <Button type="button" variant="outline" size="lg" onClick={() => setStep((s) => (s - 1) as Step)}>
             <ArrowLeft className="rtl:rotate-180" /> {t("Back")}

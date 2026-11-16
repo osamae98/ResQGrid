@@ -19,6 +19,7 @@ import { cn } from "@/lib/utils";
 import { useT } from "@/lib/i18n";
 
 const FACILITY = { medical: HeartPulse, food: Utensils, accessibility: Accessibility };
+const FACILITY_LABEL = { medical: "Medical care", food: "Food", accessibility: "Step-free access" };
 
 export default function SheltersPage() {
   const tr = useT();
@@ -94,7 +95,7 @@ function ShelterCard({ s, editable }: { s: Shelter; editable: boolean }) {
           const Icon = FACILITY[f];
           return (
             <span key={f} className="inline-flex items-center gap-1 rounded border px-1.5 py-0.5 text-xs text-muted-foreground">
-              <Icon className="size-3" /> {f}
+              <Icon className="size-3" /> {tr(FACILITY_LABEL[f])}
             </span>
           );
         })}

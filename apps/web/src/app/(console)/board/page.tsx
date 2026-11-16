@@ -41,7 +41,7 @@ export default function BoardPage() {
     <div className="flex h-full flex-col p-4">
       <PageHeader title={tr("Dispatch board")} description={tr("Tasks by status. Escalated and stale tasks are highlighted.")} />
       <LoadError queries={[tasks, teams]} what="tasks" />
-      <div className="grid min-h-0 flex-1 auto-cols-[minmax(260px,1fr)] grid-flow-col gap-3 overflow-x-auto pb-2">
+      <div className="relative grid min-h-0 flex-1 auto-cols-[minmax(224px,1fr)] grid-flow-col gap-3 overflow-x-auto pb-2">
         {COLUMNS.map((c) => (
           <section key={c} className="flex min-h-0 flex-col rounded-lg bg-muted/50" aria-label={tr(TASK_STATUS_LABEL[c])}>
             <header className="flex items-center justify-between px-3 py-2 text-sm font-medium">
@@ -100,7 +100,7 @@ function BoardCard({ t, now, stale }: { t: Task; now: number; stale: boolean }) 
               <Clock className="size-3" /> {tr("stale")}
             </span>
           ) : null}
-          <span className="ms-auto tabular-nums">{t.status === "completed" ? ago(ts, now) : since(ts, now)}</span>
+          <span className="ms-auto shrink-0 whitespace-nowrap tabular-nums">{t.status === "completed" ? ago(ts, now) : since(ts, now)}</span>
         </div>
       </Link>
     </li>

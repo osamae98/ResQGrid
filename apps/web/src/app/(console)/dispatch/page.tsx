@@ -50,8 +50,8 @@ function DispatchConsole() {
     <div className="flex h-full min-h-0 flex-col">
       <KpiStrip />
       <OverrideRequests />
-      <div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-[320px_1fr_420px]">
-        <aside className="min-h-0 border-e bg-card max-lg:h-72" aria-label={tr("Queue")}>
+      <div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-[340px_1fr] xl:grid-cols-[372px_1fr_420px]">
+        <aside className="min-h-0 border-e bg-card max-lg:h-[55dvh]" aria-label={tr("Queue")}>
           <ReportQueue reports={reports.data?.items} tasks={tasks.data} loading={reports.isLoading} selectedId={selectedId} onSelect={select} />
         </aside>
         <section className="relative min-h-80" aria-label={tr("Map")}>
@@ -68,16 +68,16 @@ function DispatchConsole() {
             focus={selected?.location}
           />
         </section>
-        {/* Below lg the detail panel is a sheet over the map, so picking a report doesn't mean scrolling past the map. */}
+        {/* Below xl (3 columns would squeeze the map) the detail panel is a sheet over the map, so picking a report doesn't mean scrolling past the map. */}
         {selectedId ? (
-          <button type="button" aria-label={tr("Close report")} className="fixed inset-0 z-[1040] bg-black/30 lg:hidden" onClick={() => select(undefined)} />
+          <button type="button" aria-label={tr("Close report")} className="fixed inset-0 z-[1040] bg-black/30 xl:hidden" onClick={() => select(undefined)} />
         ) : null}
         <aside
           className={cn(
             "min-h-0 overflow-y-auto border-s bg-card",
             selectedId
-              ? "max-lg:fixed max-lg:inset-x-0 max-lg:bottom-0 max-lg:top-16 max-lg:z-[1050] max-lg:rounded-t-xl max-lg:border-t max-lg:shadow-2xl sm:max-lg:start-auto sm:max-lg:top-12 sm:max-lg:w-[440px] sm:max-lg:rounded-none"
-              : "max-lg:hidden",
+              ? "max-xl:fixed max-xl:inset-x-0 max-xl:bottom-0 max-xl:top-16 max-xl:z-[1050] max-xl:rounded-t-xl max-xl:border-t max-xl:shadow-2xl sm:max-xl:start-auto sm:max-xl:top-12 sm:max-xl:w-[440px] sm:max-xl:rounded-none"
+              : "max-xl:hidden",
           )}
           aria-label={tr("Report detail")}
         >
@@ -97,8 +97,9 @@ function DispatchConsole() {
 function KpiStrip() {
   const tr = useT();
   const { data: k } = useKpis();
+  // Phones: one swipeable row, so the queue isn't pushed below the fold by seven tiles.
   return (
-    <div className="grid shrink-0 grid-cols-3 gap-2 border-b bg-background p-2 sm:grid-cols-4 xl:grid-cols-7">
+    <div className="relative flex shrink-0 gap-2 overflow-x-auto border-b bg-background p-2 *:w-36 *:shrink-0 sm:grid sm:grid-cols-4 sm:overflow-visible sm:*:w-auto xl:grid-cols-7">
       <Stat label={tr("Open reports")} value={k?.open_reports ?? "–"} />
       <Stat label={tr("Critical open")} value={k?.critical_open ?? "–"} tone={k?.critical_open ? "critical" : undefined} />
       <Stat label={tr("Unassigned > 5 min")} value={k?.unassigned_over_5m ?? "–"} tone={k?.unassigned_over_5m ? "warning" : undefined} />

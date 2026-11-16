@@ -49,7 +49,7 @@ export default function ResourcesPage() {
           <TabsTrigger value="stock">{tr("Stock")} ({stock.length})</TabsTrigger>
         </TabsList>
         <TabsContent value="units" className="mt-3">
-          <div className="overflow-x-auto rounded-lg border bg-card">
+          <div className="relative overflow-x-auto rounded-lg border bg-card">
             <table className="w-full text-sm">
               <thead className="border-b bg-muted/50 text-xs text-muted-foreground">
                 <tr>
@@ -73,7 +73,7 @@ export default function ResourcesPage() {
           {byDepot.map(([depot, items]) => (
             <section key={depot}>
               <h2 className="mb-2 text-sm font-semibold">{depot}</h2>
-              <div className="overflow-x-auto rounded-lg border bg-card">
+              <div className="relative overflow-x-auto rounded-lg border bg-card">
                 <table className="w-full text-sm">
                   <thead className="border-b bg-muted/50 text-xs text-muted-foreground">
                     <tr>

@@ -2,14 +2,15 @@
 
 import { OVERRIDE_REASONS, type OverrideReason, type Report, type Resource, type TeamSuggestion } from "@resqgrid/api-client";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { AlertTriangle, Check, Clock, Send, ShieldCheck } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { AlertTriangle, Ambulance, Ban, Check, Clock, Minus as MinusIcon, Plus, Send, ShieldAlert, ShieldCheck, Ship, Truck, Zap } from "lucide-react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { CapabilityChip } from "@/components/domain/badges";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Field, Input, Select, Textarea } from "@/components/ui/input";
+import { Field, Select, Textarea } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/misc";
 import { api, errorMessage, formatReason } from "@/lib/api";
 import { ago, capLabel, CATEGORY_LABEL, km } from "@/lib/format";
@@ -26,6 +27,8 @@ function distance(a: { lat: number; lng: number }, b: { lat: number; lng: number
   const h = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(a.lat)) * Math.cos(toRad(b.lat)) * Math.sin(dLng / 2) ** 2;
   return 2 * R * Math.asin(Math.sqrt(h));
 }
+
+const UNIT_ICON: Record<string, typeof Truck> = { ambulance: Ambulance, boat: Ship, generator: Zap, vehicle: Truck };
 
 const SUGGESTED_UNIT: Partial<Record<Report["category"], string>> = { medical: "ambulance", flood: "boat", rescue: "vehicle" };
 
@@ -182,9 +185,15 @@ export function DispatchForm({
           </div>
         ) : (
           <ul className="flex flex-col gap-1.5" role="radiogroup" aria-label={tr("Suggested teams")}>
-            {suggestions.data?.map((s, i) => (
+            {suggestions.data?.map((s, i, all) => (
+              <Fragment key={s.team_id}>
+                {/* Eligible teams first; one label marks where the ineligible ones start. */}
+                {!s.eligible && (i === 0 || all[i - 1].eligible) ? (
+                  <li className="mt-1 text-[11px] font-medium uppercase tracking-wide text-muted-foreground" role="presentation">
+                    {tr("Not eligible")} ({all.filter((x) => !x.eligible).length})
+                  </li>
+                ) : null}
               <SuggestionRow
-                key={s.team_id}
                 s={s}
                 rank={s.eligible ? i + 1 : undefined}
                 selected={s.team_id === teamId}
@@ -192,6 +201,7 @@ export function DispatchForm({
                 onOverride={() => setOverride(s)}
                 canOverride={can.override(user?.role)}
               />
+              </Fragment>
             ))}
             {!suggestions.data?.some((s) => s.eligible) ? (
               <li className="flex items-start gap-2 rounded-md border border-high/40 bg-high/10 p-2 text-xs text-high">
@@ -204,28 +214,57 @@ export function DispatchForm({
       </div>
 
       <div>
-        <div className="mb-1.5 flex items-center justify-between text-xs font-medium text-muted-foreground">
+        <div className="mb-1.5 flex min-w-0 flex-wrap items-center justify-between gap-x-3 gap-y-1 text-xs font-medium text-muted-foreground">
           <span>{tr("Reserve resources")}</span>
           {suggestedUnit && !units.includes(suggestedUnit.r.id) ? (
-            <button type="button" className="text-primary hover:underline" onClick={() => setUnits((u) => [...u, suggestedUnit.r.id])}>
-              + {suggestedUnit.r.name} ({km(suggestedUnit.d)})
+            <button type="button" className="inline-flex min-w-0 max-w-full items-center gap-1 text-primary hover:underline" onClick={() => setUnits((u) => [...u, suggestedUnit.r.id])}>
+              <Plus className="size-3.5 shrink-0" />
+              <span className="truncate">{suggestedUnit.r.name}</span>
+              <span className="shrink-0 tabular-nums">({km(suggestedUnit.d)})</span>
             </button>
           ) : null}
         </div>
-        <div className="max-h-48 overflow-y-auto rounded-md border">
-          {availableUnits.length === 0 && stockItems.length === 0 ? <p className="p-3 text-xs text-muted-foreground">{tr("No available resources.")}</p> : null}
-          {availableUnits.slice(0, 8).map(({ r, d }) => (
-            <label key={r.id} className="flex cursor-pointer items-center gap-2 border-b px-2.5 py-1.5 text-sm last:border-0 hover:bg-accent/50">
-              <input type="checkbox" checked={units.includes(r.id)} onChange={(e) => setUnits((u) => (e.target.checked ? [...u, r.id] : u.filter((x) => x !== r.id)))} className="size-4 accent-[var(--primary)]" />
-              <span className="flex-1 truncate">{r.name}</span>
-              <span className="text-xs text-muted-foreground">{r.depot_name}</span>
-              <span className="w-14 text-end text-xs tabular-nums text-muted-foreground">{km(d)}</span>
-            </label>
-          ))}
-          {stockItems.slice(0, 6).map(({ r }) => (
-            <StockRow key={r.id} r={r} qty={stock[r.id] ?? 0} onChange={(q) => setStock((s) => ({ ...s, [r.id]: q }))} />
-          ))}
-        </div>
+        {availableUnits.length === 0 && stockItems.length === 0 ? <p className="rounded-lg border border-dashed p-3 text-xs text-muted-foreground">{tr("No available resources.")}</p> : null}
+        {availableUnits.length ? (
+          <ul className="flex flex-col gap-1.5" aria-label={tr("Units")}>
+            {availableUnits.slice(0, 8).map(({ r, d }) => {
+              const on = units.includes(r.id);
+              const Icon = UNIT_ICON[r.type] ?? Truck;
+              return (
+                <li key={r.id}>
+                  <label
+                    className={cn(
+                      "flex cursor-pointer items-center gap-3 rounded-lg border px-3 py-2 transition-colors hover:bg-accent/50",
+                      on && "border-primary bg-primary/5 ring-1 ring-primary",
+                    )}
+                  >
+                    <Checkbox checked={on} onCheckedChange={(c) => setUnits((u) => (c === true ? [...u, r.id] : u.filter((x) => x !== r.id)))} />
+                    <span className={cn("grid size-8 shrink-0 place-items-center rounded-md", on ? "bg-primary/15 text-primary" : "bg-muted text-muted-foreground")}>
+                      <Icon className="size-4" aria-hidden />
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-sm font-medium">{r.name}</span>
+                      <span className="block truncate text-xs text-muted-foreground">
+                        {tr(r.type)} · {r.depot_name}
+                      </span>
+                    </span>
+                    <span className="shrink-0 text-xs tabular-nums text-muted-foreground">{km(d)}</span>
+                  </label>
+                </li>
+              );
+            })}
+          </ul>
+        ) : null}
+        {stockItems.length ? (
+          <div className="mt-3">
+            <div className="mb-1.5 text-xs font-medium text-muted-foreground">{tr("Supplies")}</div>
+            <ul className="flex flex-col gap-1.5">
+              {stockItems.slice(0, 6).map(({ r }) => (
+                <StockRow key={r.id} r={r} qty={stock[r.id] ?? 0} onChange={(q) => setStock((s) => ({ ...s, [r.id]: q }))} />
+              ))}
+            </ul>
+          </div>
+        ) : null}
       </div>
 
       {report.category === "shelter" ? (
@@ -267,6 +306,7 @@ export function DispatchForm({
 
 function SuggestionRow({ s, rank, selected, onSelect, onOverride, canOverride }: { s: TeamSuggestion; rank?: number; selected: boolean; onSelect: () => void; onOverride: () => void; canOverride: boolean }) {
   const tr = useT();
+  const seen = s.last_seen_s === undefined ? tr("never seen") : `${tr("seen")} ${ago(new Date(Date.now() - s.last_seen_s * 1000).toISOString())}`;
   return (
     <li
       role="radio"
@@ -276,49 +316,55 @@ function SuggestionRow({ s, rank, selected, onSelect, onOverride, canOverride }:
       onClick={onSelect}
       onKeyDown={(e) => (e.key === " " || e.key === "Enter") && onSelect()}
       className={cn(
-        "flex flex-col gap-1 rounded-md border p-2 text-sm",
-        s.eligible ? "cursor-pointer hover:bg-accent/50" : "bg-muted/40 text-muted-foreground",
-        selected && "border-primary ring-1 ring-primary",
+        "flex min-w-0 flex-col gap-1.5 rounded-md border p-2.5 text-sm",
+        s.eligible ? "cursor-pointer hover:bg-accent/50" : "border-dashed bg-muted/30",
+        selected && "border-primary bg-primary/5 ring-1 ring-primary",
       )}
     >
-      <div className="flex items-center gap-2">
+      {/* Header: rank/status · name · distance · (override) — one line, the name truncates first. */}
+      <div className="flex min-w-0 items-center gap-2">
         {s.eligible ? (
           <span className={cn("grid size-5 shrink-0 place-items-center rounded-full border text-[11px] font-bold", selected && "border-primary bg-primary text-primary-foreground")}>
             {selected ? <Check className="size-3" /> : rank}
           </span>
         ) : (
-          <span className="size-5 shrink-0" />
+          <Ban className="size-4 shrink-0 text-muted-foreground" aria-hidden />
         )}
-        <span className={cn("font-medium", !s.eligible && "line-through decoration-1")}>{s.team_name}</span>
-        <span className="ms-auto tabular-nums">{km(s.distance_km)}</span>
-      </div>
-      <div className="flex flex-wrap items-center gap-1 ps-7">
-        {s.capabilities.map((c) => (
-          <CapabilityChip key={c.key} k={c.key} ok={c.ok} />
-        ))}
-        <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground">
-          <Clock className="size-3" /> {s.last_seen_s === undefined ? tr("never seen") : `${tr("seen")} ${ago(new Date(Date.now() - s.last_seen_s * 1000).toISOString())}`}
-        </span>
-      </div>
-      {!s.eligible ? (
-        <div className="flex items-center gap-1 ps-7">
-          {s.reasons.map((r) => (
-            <Badge key={r} variant={r.startsWith("missing") ? "danger" : r.startsWith("stale") ? "stale" : "busy"}>
-              {formatReason(r)}
-            </Badge>
-          ))}
-          <button
+        <span className={cn("min-w-0 flex-1 truncate font-medium", !s.eligible && "text-muted-foreground")}>{s.team_name}</span>
+        <span className="shrink-0 text-xs tabular-nums text-muted-foreground">{km(s.distance_km)}</span>
+        {!s.eligible ? (
+          <Button
             type="button"
-            className="ms-auto text-xs font-medium text-primary hover:underline"
+            variant="outline"
+            size="sm"
+            className="h-7 shrink-0 gap-1 px-2 text-xs"
+            tooltip={`${canOverride ? tr("Override: assign") : tr("Request override for")} ${s.team_name}`}
             onClick={(e) => {
               e.stopPropagation();
               onOverride();
             }}
           >
-            {canOverride ? tr("Override…") : tr("Request override…")}
-          </button>
-        </div>
-      ) : null}
+            <ShieldAlert className="size-3.5" />
+            {canOverride ? tr("Override") : tr("Request")}
+          </Button>
+        ) : null}
+      </div>
+      {/* Why not eligible comes first, then what the team has and when it was last seen. */}
+      <div className="flex min-w-0 flex-wrap items-center gap-1 ps-7">
+        {!s.eligible
+          ? s.reasons.map((r) => (
+              <Badge key={r} variant={r.startsWith("missing") ? "danger" : r.startsWith("stale") ? "stale" : "busy"}>
+                {formatReason(r)}
+              </Badge>
+            ))
+          : null}
+        {s.capabilities.map((c) => (
+          <CapabilityChip key={c.key} k={c.key} ok={c.ok} />
+        ))}
+        <span className="inline-flex items-center gap-1 whitespace-nowrap text-[11px] text-muted-foreground">
+          <Clock className="size-3" /> {seen}
+        </span>
+      </div>
     </li>
   );
 }
@@ -326,22 +372,35 @@ function SuggestionRow({ s, rank, selected, onSelect, onOverride, canOverride }:
 function StockRow({ r, qty, onChange }: { r: Resource; qty: number; onChange: (q: number) => void }) {
   const tr = useT();
   const available = (r.on_hand ?? 0) - (r.reserved ?? 0);
+  const set = (n: number) => onChange(Math.max(0, Math.min(available, Number.isFinite(n) ? Math.round(n) : 0)));
   return (
-    <div className="flex items-center gap-2 border-b px-2.5 py-1.5 text-sm last:border-0">
-      <span className="flex-1 truncate">{r.name}</span>
-      <span className="text-xs text-muted-foreground">{r.depot_name}</span>
-      <Input
-        type="number"
-        min={0}
-        max={available}
-        value={qty || ""}
-        placeholder="0"
-        onChange={(e) => onChange(Math.max(0, Math.min(available, Number(e.target.value))))}
-        className="h-7 w-16 px-1.5 text-end"
-        aria-label={`${tr("Quantity of")} ${r.name}`}
-      />
-      <span className="w-20 text-end text-[11px] text-muted-foreground">/ {available} {r.unit_label}</span>
-    </div>
+    <li className={cn("flex items-center gap-3 rounded-lg border px-3 py-2", qty > 0 && "border-primary bg-primary/5 ring-1 ring-primary")}>
+      <span className="min-w-0 flex-1">
+        <span className="block truncate text-sm font-medium">{tr(r.name)}</span>
+        <span className="block truncate text-xs text-muted-foreground">
+          {r.depot_name} · {available} {tr(r.unit_label ?? "")} {tr("available")}
+        </span>
+      </span>
+      {/* Stepper: big tap targets, typing still works for large amounts. */}
+      <div className="flex shrink-0 items-center overflow-hidden rounded-md border bg-card" role="group" aria-label={`${tr("Quantity of")} ${tr(r.name)}`}>
+        <button type="button" className="grid size-8 place-items-center hover:bg-accent disabled:opacity-40" onClick={() => set(qty - 1)} disabled={qty <= 0} aria-label={tr("Less")}>
+          <MinusIcon className="size-3.5" />
+        </button>
+        <input
+          type="number"
+          inputMode="numeric"
+          min={0}
+          max={available}
+          value={qty}
+          onChange={(e) => set(Number(e.target.value))}
+          className="h-8 w-11 border-x bg-transparent text-center text-sm tabular-nums outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none"
+          aria-label={`${tr("Quantity of")} ${tr(r.name)}`}
+        />
+        <button type="button" className="grid size-8 place-items-center hover:bg-accent disabled:opacity-40" onClick={() => set(qty + 1)} disabled={qty >= available} aria-label={tr("More")}>
+          <Plus className="size-3.5" />
+        </button>
+      </div>
+    </li>
   );
 }
 

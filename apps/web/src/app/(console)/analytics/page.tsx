@@ -165,7 +165,7 @@ export default function AnalyticsPage() {
           <CardTitle>{tr("Time to milestone by")} {tr(by)}</CardTitle>
           <CardDescription>{tr("Median / p90 from report received")}</CardDescription>
         </CardHeader>
-        <CardContent className="overflow-x-auto">
+        <CardContent className="relative overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="text-xs text-muted-foreground">
               <tr className="border-b">
@@ -199,7 +199,7 @@ export default function AnalyticsPage() {
         <CardHeader>
           <CardTitle>{tr("Team performance")}</CardTitle>
         </CardHeader>
-        <CardContent className="overflow-x-auto">
+        <CardContent className="relative overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="text-xs text-muted-foreground">
               <tr className="border-b">

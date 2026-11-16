@@ -3,10 +3,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import { use } from "react";
+import { use, useState } from "react";
 import { toast } from "sonner";
 import { Comments } from "@/components/domain/comments";
 import { PriorityBadge, ReportStatusBadge } from "@/components/domain/badges";
+import { Button } from "@/components/ui/button";
 import { TaskCard } from "@/components/dispatch/report-panel";
 import { LiveMap } from "@/components/map/live-map";
 import { Badge } from "@/components/ui/badge";
@@ -15,6 +16,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select } from "@/components/ui/input";
 import { Stat } from "@/components/ui/misc";
 import { api, errorMessage } from "@/lib/api";
+import { PRIORITIES } from "@resqgrid/api-client";
 import { ago, km } from "@/lib/format";
 import { useReports, useResources, useTasks, useTeams } from "@/lib/queries";
 import { can, useSession } from "@/lib/session";
@@ -28,6 +30,8 @@ export default function IncidentPage({ params }: { params: Promise<{ id: string 
   const incident = useQuery({ queryKey: ["incidents", id], queryFn: () => api.incidents.get(id) });
   const reports = useReports({ incident_id: id });
   const tasks = useTasks({ incident_id: id });
+  const [allReports, setAllReports] = useState(false);
+  const [allTasks, setAllTasks] = useState(false);
   const resources = useResources();
   const teams = useTeams();
   const inv = () => qc.invalidateQueries({ queryKey: ["incidents"] });
@@ -40,6 +44,12 @@ export default function IncidentPage({ params }: { params: Promise<{ id: string 
   const i = incident.data;
   if (!i) return null;
   const linkedResources = resources.data?.filter((r) => r.incident_id === id) ?? [];
+  // No scroll areas inside the page (they trap the wheel): show the most urgent few, expand in place.
+  const isOpen = (s: string) => !["resolved", "closed"].includes(s);
+  const linked = [...(reports.data?.items ?? [])].sort(
+    (a, b) => Number(isOpen(b.status)) - Number(isOpen(a.status)) || PRIORITIES.indexOf(a.priority) - PRIORITIES.indexOf(b.priority) || (a.created_at < b.created_at ? 1 : -1),
+  );
+  const activeTasks = tasks.data?.filter((t) => !["completed", "cancelled"].includes(t.status)) ?? [];
   const open = reports.data?.items.filter((r) => !["resolved", "closed"].includes(r.status) && !r.merged_into_id) ?? [];
 
   return (
@@ -98,22 +108,32 @@ export default function IncidentPage({ params }: { params: Promise<{ id: string 
           <CardHeader>
             <CardTitle>{tr("Linked reports")}</CardTitle>
           </CardHeader>
-          <CardContent className="flex max-h-96 flex-col gap-1 overflow-y-auto">
-            {reports.data?.items.map((r) => (
+          <CardContent className="flex flex-col gap-1">
+            {(allReports ? linked : linked.slice(0, 8)).map((r) => (
               <Link key={r.id} href={`/reports/${r.id}`} className="flex items-center gap-2 rounded px-2 py-1.5 text-sm hover:bg-accent">
                 <PriorityBadge priority={r.priority} compact />
                 <span className="flex-1 truncate" dir="auto">{r.title}</span>
                 <ReportStatusBadge status={r.status} />
               </Link>
             ))}
+            {linked.length > 8 ? (
+              <Button variant="ghost" size="sm" className="mt-1 self-start" onClick={() => setAllReports((v) => !v)} aria-expanded={allReports}>
+                {allReports ? tr("Show less") : `${tr("Show all")} (${linked.length})`}
+              </Button>
+            ) : null}
           </CardContent>
         </Card>
         <Card>
           <CardHeader>
             <CardTitle>{tr("Tasks")}</CardTitle>
           </CardHeader>
-          <CardContent className="flex max-h-96 flex-col gap-2 overflow-y-auto">
-            {tasks.data?.filter((t) => !["completed", "cancelled"].includes(t.status)).map((t) => <TaskCard key={t.id} t={t} />)}
+          <CardContent className="flex flex-col gap-2">
+            {(allTasks ? activeTasks : activeTasks.slice(0, 5)).map((t) => <TaskCard key={t.id} t={t} />)}
+            {activeTasks.length > 5 ? (
+              <Button variant="ghost" size="sm" className="self-start" onClick={() => setAllTasks((v) => !v)} aria-expanded={allTasks}>
+                {allTasks ? tr("Show less") : `${tr("Show all")} (${activeTasks.length})`}
+              </Button>
+            ) : null}
             {tasks.data?.every((t) => ["completed", "cancelled"].includes(t.status)) ? <p className="text-sm text-muted-foreground">{tr("No active tasks.")}</p> : null}
           </CardContent>
         </Card>
@@ -124,9 +144,9 @@ export default function IncidentPage({ params }: { params: Promise<{ id: string 
           <CardContent className="flex flex-col gap-1 text-sm">
             {linkedResources.map((r) => (
               <div key={r.id} className="flex items-center gap-2">
-                <span className="flex-1">{r.name}</span>
+                <span className="flex-1">{tr(r.name)}</span>
                 <span className="text-xs text-muted-foreground">{r.depot_name}</span>
-                {r.kind === "unit" ? <Badge variant={r.status === "available" ? "available" : r.status === "unavailable" ? "stale" : "busy"}>{r.status}</Badge> : <Badge variant="outline">{(r.on_hand ?? 0) - (r.reserved ?? 0)} {r.unit_label}</Badge>}
+                {r.kind === "unit" ? <Badge variant={r.status === "available" ? "available" : r.status === "unavailable" ? "stale" : "busy"}>{tr(r.status ?? "")}</Badge> : <Badge variant="outline">{(r.on_hand ?? 0) - (r.reserved ?? 0)} {tr(r.unit_label ?? "")}</Badge>}
               </div>
             ))}
           </CardContent>

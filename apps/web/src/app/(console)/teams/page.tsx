@@ -108,7 +108,7 @@ function TeamCard({ t, editable }: { t: Team; editable: boolean }) {
           </h2>
           <p className={cn("inline-flex items-center gap-1 text-xs", lastSeenMin > 5 ? "text-high" : "text-muted-foreground")}>
             <Clock className="size-3" /> {tr("last seen")} {ago(t.last_location_at)}
-            {t.active_task_id ? " · on a task" : ""}
+            {t.active_task_id ? ` · ${tr("on a task")}` : ""}
           </p>
         </div>
         <div className="flex items-center gap-2">
