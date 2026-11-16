@@ -9,7 +9,7 @@ export const api = createApiClient({ baseUrl: API_URL });
 export function errorMessage(e: unknown): string {
   if (e instanceof ApiError) {
     const reasons = (e.details?.reasons as string[] | undefined)?.map(formatReason).join(", ");
-    return reasons ? `${e.message} — ${reasons}` : e.message;
+    return reasons ? `${e.message}: ${reasons}` : e.message;
   }
   return e instanceof Error ? e.message : tx("Something went wrong");
 }

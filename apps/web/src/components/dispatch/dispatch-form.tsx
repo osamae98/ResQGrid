@@ -95,7 +95,7 @@ export function DispatchForm({
 
   const [instructions, setInstructions] = useState("");
   useEffect(() => {
-    setInstructions(`${tr(CATEGORY_LABEL[report.category])} — ${report.title}. ${report.address_text ?? ""}`.trim());
+    setInstructions(`${tr(CATEGORY_LABEL[report.category])}: ${report.title}. ${report.address_text ?? ""}`.trim());
   }, [report.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const invalidate = () => ["tasks", "reports", "report", "teams", "resources", "suggestions", "kpis"].forEach((k) => qc.invalidateQueries({ queryKey: [k] }));
@@ -273,7 +273,7 @@ export function DispatchForm({
             <option value="">{tr("None")}</option>
             {shelters.data?.map((s) => (
               <option key={s.id} value={s.id}>
-                {s.name} — {s.capacity - s.occupancy} {tr("free")} · {km(s.distance_km)} · {s.facilities.map((f) => tr(f.replaceAll("_", " "))).join("، ")}
+                {s.name} · {s.capacity - s.occupancy} {tr("free")} · {km(s.distance_km)} · {s.facilities.map((f) => tr(f.replaceAll("_", " "))).join("، ")}
               </option>
             ))}
           </Select>

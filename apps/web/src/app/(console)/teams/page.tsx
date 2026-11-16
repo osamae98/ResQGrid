@@ -146,7 +146,7 @@ function TeamCard({ t, editable }: { t: Team; editable: boolean }) {
             </div>
             <label className="flex items-center gap-2 text-xs text-muted-foreground">
               {m.on_duty ? tr("On duty") : tr("Off duty")}
-              <Switch checked={m.on_duty} disabled={!editable || duty.isPending} onCheckedChange={(on) => duty.mutate({ userId: m.user_id, on })} aria-label={`${m.name} — ${tr("On duty")}`} />
+              <Switch checked={m.on_duty} disabled={!editable || duty.isPending} onCheckedChange={(on) => duty.mutate({ userId: m.user_id, on })} aria-label={`${m.name}: ${tr("On duty")}`} />
             </label>
           </li>
         ))}

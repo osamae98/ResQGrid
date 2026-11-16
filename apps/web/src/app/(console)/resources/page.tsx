@@ -28,7 +28,7 @@ export default function ResourcesPage() {
   const volunteers = teams.data?.filter((t) => t.is_volunteer).flatMap((t) => t.members) ?? [];
   const byDepot = useMemo(() => {
     const m = new Map<string, Resource[]>();
-    for (const r of stock) m.set(r.depot_name ?? "—", [...(m.get(r.depot_name ?? "—") ?? []), r]);
+    for (const r of stock) m.set(r.depot_name ?? "–", [...(m.get(r.depot_name ?? "–") ?? []), r]);
     return [...m.entries()];
   }, [stock]);
   const count = (s: Resource["status"]) => units.filter((u) => u.status === s).length;
@@ -125,7 +125,7 @@ function UnitRow({ u, editable }: { u: Resource; editable: boolean }) {
             {tr("View task")}
           </Link>
         ) : (
-          <span className="text-muted-foreground">—</span>
+          <span className="text-muted-foreground">–</span>
         )}
       </td>
       <td className="px-3 py-2 text-end">
@@ -192,7 +192,7 @@ function StockRow({ s, editable }: { s: Resource; editable: boolean }) {
         ) : null}
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogContent title={`${tr("Adjust")}: ${tr(s.name)}`} description={`${s.on_hand} ${tr("on hand")}، ${s.reserved} ${tr("reserved")}. ${tr("On hand can't drop below reserved.")}`}>
-            <Field label={`${tr("Change")} (${tr(s.unit_label ?? "")}) — ${tr("negative to remove")}`}>
+            <Field label={`${tr("Change")} (${tr(s.unit_label ?? "")})`} hint={tr("Use a negative number to remove stock.")}>
               <Input type="number" value={delta || ""} onChange={(e) => setDelta(Number(e.target.value))} />
             </Field>
             <Field label={tr("Reason")}>

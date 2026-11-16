@@ -61,7 +61,7 @@ export default function IncidentsPage() {
                 <div>
                   <h2 className="font-semibold">{i.title}</h2>
                   <p className="text-xs capitalize text-muted-foreground">
-                    {tr(i.type)} · {tr("radius")} {km(i.radius_km)} · {tr("commander")} {i.commander_name ?? "—"}
+                    {tr(i.type)} · {tr("radius")} {km(i.radius_km)} · {tr("commander")} {i.commander_name ?? "–"}
                   </p>
                 </div>
                 <Badge variant={i.status === "active" ? "danger" : i.status === "monitoring" ? "warning" : "stale"}>{tr(i.status)}</Badge>

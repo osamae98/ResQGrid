@@ -145,7 +145,7 @@ function MentionInput({
         rows={1}
         dir="auto"
         className="min-h-10"
-        placeholder={tr("Add a comment — @name to mention")}
+        placeholder={tr("Add a comment. Type @ to mention someone.")}
         role="combobox"
         aria-autocomplete="list"
         aria-expanded={open}

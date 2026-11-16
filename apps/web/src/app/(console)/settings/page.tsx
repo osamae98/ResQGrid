@@ -71,7 +71,7 @@ function OrgTab() {
     }
   }, [org]);
   const save = useMutation({ mutationFn: () => api.org.update({ name, timezone: tz }), onSuccess: () => (toast.success(tr("Saved")), qc.invalidateQueries({ queryKey: ["me"] })), onError: (e) => toast.error(errorMessage(e)) });
-  const reset = useMutation({ mutationFn: api.dev.reset, onSuccess: () => (toast.success(tr("Demo data reset — sign in again")), setTimeout(() => (location.href = "/login"), 800)) });
+  const reset = useMutation({ mutationFn: api.dev.reset, onSuccess: () => (toast.success(tr("Demo data reset. Sign in again.")), setTimeout(() => (location.href = "/login"), 800)) });
   return (
     <div className="flex flex-col gap-4">
       <Card>
@@ -181,7 +181,7 @@ function UsersTab() {
                   <Badge variant="outline">{tr(ROLE_LABEL[u.role])}</Badge>
                 </td>
                 <td className="px-3 py-2 text-end">
-                  <Switch checked={u.is_active} onCheckedChange={(on) => toggle.mutate({ id: u.id, on })} aria-label={`${u.name} — ${tr("Active")}`} />
+                  <Switch checked={u.is_active} onCheckedChange={(on) => toggle.mutate({ id: u.id, on })} aria-label={`${u.name}: ${tr("Active")}`} />
                 </td>
               </tr>
             ))}
@@ -214,7 +214,7 @@ function RulesTab() {
         {draft.map((r, i) => (
           <div key={r.category} className="grid gap-2 border-b pb-3 last:border-0 md:grid-cols-[140px_140px_1fr]">
             <div className="text-sm font-medium">{tr(CATEGORY_LABEL[r.category])}</div>
-            <Select value={r.default_priority} onChange={(e) => update(i, (x) => (x.default_priority = e.target.value as Priority))} aria-label={`${tr(CATEGORY_LABEL[r.category])} — ${tr("Default priority")}`}>
+            <Select value={r.default_priority} onChange={(e) => update(i, (x) => (x.default_priority = e.target.value as Priority))} aria-label={`${tr(CATEGORY_LABEL[r.category])}: ${tr("Default priority")}`}>
               {PRIORITIES.map((p) => (
                 <option key={p} value={p}>
                   {tr(PRIORITY_LABEL[p])}
@@ -290,9 +290,9 @@ function EscalationTab() {
                 {cols.map(([k]) => (
                   <td key={k} className="py-2 pe-2">
                     {p[k] === undefined ? (
-                      <span className="text-xs text-muted-foreground">—</span>
+                      <span className="text-xs text-muted-foreground">–</span>
                     ) : (
-                      <Input type="number" min={0.5} step={0.5} className="w-24" value={Number(p[k]) / 60} onChange={(e) => set(i, k, Number(e.target.value))} aria-label={`${tr(PRIORITY_LABEL[p.priority])} — ${tr(String(cols.find(([f]) => f === k)?.[1] ?? k))}`} />
+                      <Input type="number" min={0.5} step={0.5} className="w-24" value={Number(p[k]) / 60} onChange={(e) => set(i, k, Number(e.target.value))} aria-label={`${tr(PRIORITY_LABEL[p.priority])}: ${tr(String(cols.find(([f]) => f === k)?.[1] ?? k))}`} />
                     )}
                   </td>
                 ))}
@@ -333,7 +333,7 @@ function IntakeTab() {
             <li>{tr("Honeypot field and minimum fill time are always on.")}</li>
           </ul>
           <label className="flex items-center gap-3 text-sm">
-            <Switch checked={captcha} onCheckedChange={setCaptcha} /> {tr("CAPTCHA challenge (Turnstile / hCaptcha — needs backend config)")}
+            <Switch checked={captcha} onCheckedChange={setCaptcha} /> {tr("CAPTCHA challenge (Turnstile or hCaptcha, needs backend config)")}
           </label>
         </div>
       </CardContent>

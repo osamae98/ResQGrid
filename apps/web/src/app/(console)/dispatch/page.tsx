@@ -120,7 +120,7 @@ function OverrideRequests() {
   const approve = useMutation({
     mutationFn: api.tasks.overrideApprove,
     onSuccess: (t) => {
-      toast.success(`${tr("Override approved")} — ${t.team_name}`);
+      toast.success(`${tr("Override approved")}: ${t.team_name}`);
       ["override-requests", "tasks", "reports", "teams", "resources"].forEach((k) => qc.invalidateQueries({ queryKey: [k] }));
     },
     onError: (e) => (toast.error(errorMessage(e)), qc.invalidateQueries({ queryKey: ["override-requests"] })),
@@ -133,7 +133,7 @@ function OverrideRequests() {
         <div key={r.id} className="flex flex-wrap items-center gap-2 text-sm">
           <ShieldCheck className="size-4 text-high" />
           <span>
-            <strong>{r.requested_by}</strong> {tr("requests an override to assign")} <strong>{r.team_name}</strong> — {formatReason(r.reason)}
+            <strong>{r.requested_by}</strong> {tr("requests an override to assign")} <strong>{r.team_name}</strong> ({formatReason(r.reason)})
             {r.note ? `: ${r.note}` : ""}
           </span>
           <span className="text-xs text-muted-foreground">{tr("expires in")} {since(new Date(2 * Date.now() - Date.parse(r.expires_at)).toISOString())}</span>

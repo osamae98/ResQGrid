@@ -73,7 +73,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     if (e.type === "report.critical_alert") {
       playCriticalSound();
       const d = e.data as { category?: string; repeat?: boolean };
-      toast.error(`${d.repeat ? tr("Still untriaged") + " — " : ""}${tr("Critical report")}: ${tr(CATEGORY_LABEL[d.category as keyof typeof CATEGORY_LABEL] ?? "Other")}`, {
+      toast.error(`${d.repeat ? tr("Still untriaged") + ". " : ""}${tr("Critical report")}: ${tr(CATEGORY_LABEL[d.category as keyof typeof CATEGORY_LABEL] ?? "Other")}`, {
         duration: 15_000,
         action: { label: tr("Open"), onClick: () => router.push(`/dispatch?report=${e.entity_id}`) },
       });

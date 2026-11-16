@@ -665,7 +665,7 @@ function assignTeam(ctx: Ctx, task: TaskRec, report: ReportRec, teamId: ID, over
       throw new HttpError(409, "TEAM_INELIGIBLE", "Team is not eligible", { reasons: s.reasons });
     task.override_by = ctx.user.name;
     task.override_reason = `${override.reason}${override.note ? `: ${override.note}` : ""}`;
-    taskEvent(ctx.db, ctx.orgId, task, "override", undefined, undefined, ctx.user.name, `${s.reasons.join(", ")} — ${task.override_reason}`);
+    taskEvent(ctx.db, ctx.orgId, task, "override", undefined, undefined, ctx.user.name, `${s.reasons.join(", ")}: ${task.override_reason}`);
     audit(ctx, "task.override", "task", task.id, `Override: assigned ${team.name} (${s.reasons.join(", ")})`);
   }
   task.assigned_team_id = team.id;
@@ -805,7 +805,7 @@ export function transitionTask(
     t.escalation_deadline = undefined;
     releaseAll(ctx, t);
   }
-  const note = action === "complete" ? `${b.outcome?.replaceAll("_", " ")} — ${b.resolution_note}` : b.reason;
+  const note = action === "complete" ? `${b.outcome?.replaceAll("_", " ")}: ${b.resolution_note}` : b.reason;
   taskEvent(ctx.db, ctx.orgId, t, "status_changed", from, t.status, ctx.user.name, note, team?.last_location);
   audit(ctx, `task.${action}`, "task", t.id, `Task ${from} → ${t.status}${ctx.user.role !== "responder" && ["accept", "en_route", "on_site"].includes(action) ? " (on behalf of team)" : ""}`);
   if (action === "complete" || action === "cancel") freeTeamIfIdle(ctx, t.assigned_team_id);

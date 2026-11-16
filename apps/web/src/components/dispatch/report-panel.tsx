@@ -108,7 +108,7 @@ export function ReportPanel({ reportId, onClose, showFullLink = true }: { report
 
         {needsTeam && can.dispatch(user?.role) ? (
           <section className="flex flex-col gap-2 rounded-lg border border-critical/40 p-3">
-            <h3 className="text-sm font-semibold">{tr("Reassign — declined:")} {tr(needsTeam.decline_reason ?? "")}</h3>
+            <h3 className="text-sm font-semibold">{tr("Declined, needs reassigning:")} {tr(needsTeam.decline_reason ?? "")}</h3>
             <DispatchForm report={r} taskId={needsTeam.id} />
           </section>
         ) : null}
@@ -152,7 +152,7 @@ function ContactBlock({ r }: { r: Report }) {
     );
   return contact ? (
     <div className="flex items-center gap-3 rounded-md bg-muted px-3 py-2 text-sm">
-      <span className="font-medium">{contact.name ?? "—"}</span>
+      <span className="font-medium">{contact.name ?? "–"}</span>
       {contact.phone ? (
         <a className="inline-flex items-center gap-1 text-primary hover:underline" href={`tel:${contact.phone}`}>
           <Phone className="size-3.5" />
@@ -214,7 +214,7 @@ function DuplicateBanner({ r }: { r: Report }) {
           <div key={d.id} className="flex flex-wrap items-center gap-2">
             <Copy className="size-4 shrink-0 text-high" />
             <span className="flex-1">
-              {tr("Possible duplicate of")} <span className="font-mono">{d.reference_code}</span> — {km(dist / 1000)}, {Math.abs(Math.round((Date.parse(r.created_at) - Date.parse(d.created_at)) / 60000))} {tr("min apart")}
+              {tr("Possible duplicate of")} <span className="font-mono">{d.reference_code}</span> ({km(dist / 1000)}, {Math.abs(Math.round((Date.parse(r.created_at) - Date.parse(d.created_at)) / 60000))} {tr("min apart")})
               <span className="block text-xs text-muted-foreground" dir="auto">{d.title}</span>
               {can.triage(user?.role) ? <span className="block text-xs text-muted-foreground">{tr("The older report is kept. You can undo a merge.")}</span> : null}
             </span>

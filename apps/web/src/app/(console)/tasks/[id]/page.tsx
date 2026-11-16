@@ -197,7 +197,7 @@ function ResourcesCard({ t }: { t: Task }) {
                 ?.filter((r) => (r.kind === "unit" ? r.status === "available" : (r.on_hand ?? 0) - (r.reserved ?? 0) > 0))
                 .map((r) => (
                   <option key={r.id} value={r.id}>
-                    {r.name} — {r.depot_name}
+                    {r.name} · {r.depot_name}
                     {r.kind === "stock" ? ` (${(r.on_hand ?? 0) - (r.reserved ?? 0)} ${r.unit_label})` : ""}
                   </option>
                 ))}

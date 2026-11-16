@@ -80,7 +80,7 @@ export const AUDIT_AREA_LABEL: Record<string, string> = {
 export const capLabel = (k: string) => k.replaceAll("_", " ").replace(/^\w/, (c) => c.toUpperCase());
 
 export function ago(iso?: string, now = Date.now()) {
-  if (!iso) return "—";
+  if (!iso) return "–";
   const s = Math.max(0, Math.round((now - Date.parse(iso)) / 1000));
   const u = U[fmt];
   if (s < 60) return u.ago(`${s}${u.s}`);
@@ -92,7 +92,7 @@ export function ago(iso?: string, now = Date.now()) {
 }
 
 export function since(iso?: string, now = Date.now()) {
-  if (!iso) return "—";
+  if (!iso) return "–";
   const s = Math.max(0, Math.round((now - Date.parse(iso)) / 1000));
   const m = Math.floor(s / 60);
   if (m < 60) return `${m}:${String(s % 60).padStart(2, "0")}`;
@@ -100,7 +100,7 @@ export function since(iso?: string, now = Date.now()) {
 }
 
 export function duration(s: number | null | undefined) {
-  if (s === null || s === undefined) return "—";
+  if (s === null || s === undefined) return "–";
   const u = U[fmt];
   if (s < 60) return `${Math.round(s)}${u.s}`;
   const m = s / 60;
@@ -109,7 +109,7 @@ export function duration(s: number | null | undefined) {
 }
 
 export function dateTime(iso?: string) {
-  if (!iso) return "—";
+  if (!iso) return "–";
   return new Date(iso).toLocaleString(intlLocale(), { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
 }
 
@@ -119,11 +119,11 @@ export function weekday(date: string) {
 }
 
 export function time(iso?: string) {
-  if (!iso) return "—";
+  if (!iso) return "–";
   return new Date(iso).toLocaleTimeString(intlLocale(), { hour: "2-digit", minute: "2-digit", second: "2-digit" });
 }
 
-export const km = (n?: number) => (n === undefined ? "—" : n < 1 ? `${Math.round(n * 1000)} ${U[fmt].meters}` : `${n.toFixed(1)} ${U[fmt].km}`);
+export const km = (n?: number) => (n === undefined ? "–" : n < 1 ? `${Math.round(n * 1000)} ${U[fmt].meters}` : `${n.toFixed(1)} ${U[fmt].km}`);
 
 export const initials = (name: string) =>
   name

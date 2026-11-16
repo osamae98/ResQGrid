@@ -93,7 +93,7 @@ export default function ResponderHome() {
             {sharing.state === "on"
               ? `${t("Location sharing on")}${sharing.queued ? ` · ${sharing.queued} ${t("queued")}` : ""}`
               : sharing.state === "denied"
-                ? t("Location blocked — allow it in settings")
+                ? t("Location blocked. Allow it in settings.")
                 : sharing.state === "starting"
                   ? t("Getting location…")
                   : onDuty
@@ -417,7 +417,7 @@ function CompleteSheet({ task: t, open, onOpenChange, onDone }: { task: Task; op
         </Field>
         {stock.length ? (
           <div className="flex flex-col gap-2">
-            <span className="text-xs font-medium text-muted-foreground">{tr("Supplies used — the rest goes back to stock")}</span>
+            <span className="text-xs font-medium text-muted-foreground">{tr("Supplies used (the rest goes back to stock)")}</span>
             {stock.map((a) => (
               <label key={a.id} className="flex items-center gap-2 text-sm">
                 <span className="flex-1">{a.resource_name}</span>
