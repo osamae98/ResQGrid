@@ -49,6 +49,13 @@ export function useCopy(ms = 2000) {
  */
 export function usePageTitle(page?: string) {
   useEffect(() => {
-    document.title = page ? `${page} · RescueGrid` : "RescueGrid";
+    const want = page ? `${page} · RescueGrid` : "RescueGrid";
+    document.title = want;
+    // Next re-applies the static metadata title on soft navigations (e.g. ?report=…); put ours back.
+    const obs = new MutationObserver(() => {
+      if (document.title !== want) document.title = want;
+    });
+    obs.observe(document.head, { subtree: true, childList: true, characterData: true });
+    return () => obs.disconnect();
   }, [page]);
 }

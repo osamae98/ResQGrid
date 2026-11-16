@@ -204,33 +204,42 @@ function DuplicateBanner({ r }: { r: Report }) {
   const mergedIn = dups.data?.filter((d) => r.merged_ids.includes(d.id)) ?? [];
   if (!possible.length && !mergedIn.length) return null;
   return (
-    <div className="flex flex-col gap-2 rounded-md border border-high/40 bg-high/10 p-2 text-sm">
+    <div className="flex flex-col gap-3 rounded-md border border-high/40 bg-high/10 p-3 text-sm">
       {possible.map((d) => {
         const thisIsNewer = r.created_at > d.created_at;
         const dist = Math.round(
           6371000 * 2 * Math.asin(Math.sqrt(Math.sin(((d.location.lat - r.location.lat) * Math.PI) / 360) ** 2 + Math.cos((r.location.lat * Math.PI) / 180) * Math.cos((d.location.lat * Math.PI) / 180) * Math.sin(((d.location.lng - r.location.lng) * Math.PI) / 360) ** 2)),
         );
         return (
-          <div key={d.id} className="flex flex-wrap items-center gap-2">
-            <Copy className="size-4 shrink-0 text-high" />
-            <span className="flex-1">
-              {tr("Possible duplicate of")} <span className="font-mono">{d.reference_code}</span> ({km(dist / 1000)}, {Math.abs(Math.round((Date.parse(r.created_at) - Date.parse(d.created_at)) / 60000))} {tr("min apart")})
-              <span className="block text-xs text-muted-foreground" dir="auto">{d.title}</span>
-              {can.triage(user?.role) ? <span className="block text-xs text-muted-foreground">{tr("The older report is kept. You can undo a merge.")}</span> : null}
-            </span>
-            {can.triage(user?.role) ? (
-              // The older report is kept as the primary; name both so it's clear which one leaves the queue.
-              <Button
-                size="sm"
-                variant="outline"
-                disabled={merge.isPending}
-                title={`${tr("Keeps")} ${thisIsNewer ? d.reference_code : r.reference_code} (${tr("older")}). ${thisIsNewer ? r.reference_code : d.reference_code} ${tr("leaves the queue; photos and contacts are kept. You can undo.")}`}
-                onClick={() => merge.mutate(thisIsNewer ? { dup: r.id, primary: d.id } : { dup: d.id, primary: r.id })}
-              >
-                {tr("Merge")} <span className="font-mono">{thisIsNewer ? r.reference_code : d.reference_code}</span> {tr("into")}{" "}
-                <span className="font-mono">{thisIsNewer ? d.reference_code : r.reference_code}</span>
-              </Button>
-            ) : null}
+          // Stacked, not side by side: the merge button used to squeeze the text into a narrow column.
+          <div key={d.id} className="flex gap-2.5">
+            <Copy className="mt-0.5 size-4 shrink-0 text-high" />
+            <div className="flex min-w-0 flex-1 flex-col gap-1">
+              <span className="font-medium">{tr("Possible duplicate")}</span>
+              <span className="flex min-w-0 items-baseline gap-1.5">
+                <span className="shrink-0 font-mono text-xs">{d.reference_code}</span>
+                <span className="truncate text-muted-foreground" dir="auto">{d.title}</span>
+              </span>
+              <span className="text-xs text-muted-foreground">
+                {km(dist / 1000)} · {Math.abs(Math.round((Date.parse(r.created_at) - Date.parse(d.created_at)) / 60000))} {tr("min apart")}
+              </span>
+              {can.triage(user?.role) ? (
+                <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
+                  {/* The older report stays as the primary; the button names it so it's clear which one remains. */}
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="bg-card"
+                    disabled={merge.isPending}
+                    title={`${tr("Keeps")} ${thisIsNewer ? d.reference_code : r.reference_code} (${tr("older")}). ${thisIsNewer ? r.reference_code : d.reference_code} ${tr("leaves the queue; photos and contacts are kept. You can undo.")}`}
+                    onClick={() => merge.mutate(thisIsNewer ? { dup: r.id, primary: d.id } : { dup: d.id, primary: r.id })}
+                  >
+                    {tr("Merge into")} <span className="font-mono">{thisIsNewer ? d.reference_code : r.reference_code}</span>
+                  </Button>
+                  <span className="text-xs text-muted-foreground">{tr("Keeps the older report. You can undo.")}</span>
+                </div>
+              ) : null}
+            </div>
           </div>
         );
       })}

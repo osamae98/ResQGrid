@@ -169,7 +169,7 @@ function QueueRow({ r, now, selected, needsTeam, onSelect }: { r: Report; now: n
           ) : null}
           {r.possible_duplicate_ids.length ? (
             <span className="inline-flex items-center gap-1 text-xs text-high" title={tr("Possible duplicate")}>
-              <Copy className="size-3" /> {tr("dup?")}
+              <Copy className="size-3" /> {tr("Duplicate?")}
             </span>
           ) : null}
           <span className="ms-auto font-mono text-[11px] text-muted-foreground">{r.reference_code}</span>

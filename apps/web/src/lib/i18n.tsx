@@ -755,6 +755,9 @@ const ar: Record<string, string> = {
   "Responder": "المستجيب",
   "Create your organization": "أنشئ مؤسستك",
   "Set up your organization": "إعداد مؤسستك",
+  "Merge into": "دمج في",
+  "Keeps the older report. You can undo.": "يُبقي البلاغ الأقدم. يمكنك التراجع.",
+  "Duplicate?": "مكرر؟",
 };
 
 const dict: Record<Locale, Record<string, string>> = { en: {}, ar };
