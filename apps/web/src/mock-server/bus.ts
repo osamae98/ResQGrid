@@ -2,6 +2,7 @@
 // The gateway re-checks org_id and role on every outbound event.
 import type { EventEnvelope, EventType, ID, Role } from "@resqgrid/api-client";
 import type { DB } from "./db";
+import { persistent, queueEvent } from "./persist";
 
 export interface Subscriber {
   orgId: ID;
@@ -38,6 +39,8 @@ export function publish(db: DB, orgId: ID, type: EventType, entityId: ID, data: 
     ts: new Date().toISOString(),
     data: data as Record<string, unknown>,
   };
+  // Serverless: other instances hold the open streams, so events go through Redis (persist.ts).
+  if (persistent) return queueEvent(env, audience);
   for (const s of subscribers) {
     if (s.orgId !== orgId) continue;
     const byRole = audience.roles?.includes(s.role);

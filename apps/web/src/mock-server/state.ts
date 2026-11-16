@@ -1,6 +1,7 @@
 // Singleton mock state + background loops (simulate_responders.py and the escalation scheduler).
 import { createSeed, type DB } from "./db";
 import { distanceKm, offset, stepTowards } from "./geo";
+import { persistent } from "./persist";
 import { activeTaskOf, setTeamLocation, sweep } from "./services";
 
 const g = globalThis as unknown as { __rqDb?: DB; __rqTimers?: NodeJS.Timeout[] };
@@ -8,7 +9,8 @@ const g = globalThis as unknown as { __rqDb?: DB; __rqTimers?: NodeJS.Timeout[] 
 export function getDb(): DB {
   if (!g.__rqDb) {
     g.__rqDb = createSeed();
-    startLoops();
+    // With shared state (persist.ts) the loops run as a tick inside requests instead of timers.
+    if (!persistent) startLoops();
   }
   return g.__rqDb;
 }
@@ -17,6 +19,14 @@ export function resetDb() {
   g.__rqDb = createSeed();
   return g.__rqDb;
 }
+
+/** One round of the background loops; persist.ts calls it from requests on serverless hosting. */
+export function tick(db: DB) {
+  sweep(db);
+  simulateResponders(db);
+}
+
+export const seed = createSeed;
 
 function startLoops() {
   for (const t of g.__rqTimers ?? []) clearInterval(t);
