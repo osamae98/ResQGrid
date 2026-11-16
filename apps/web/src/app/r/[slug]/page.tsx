@@ -13,8 +13,8 @@ import { Field, Input, Textarea } from "@/components/ui/input";
 import { api, errorMessage } from "@/lib/api";
 import { EMERGENCY_NUMBER, PHOTO_UPLOAD } from "@/lib/flags";
 import { CATEGORY_LABEL } from "@/lib/format";
-import { useI18n } from "@/lib/i18n";
-import { useCopy } from "@/lib/hooks";
+import { useI18n, useT } from "@/lib/i18n";
+import { useCopy, usePageTitle } from "@/lib/hooks";
 import { cn } from "@/lib/utils";
 
 type Step = 0 | 1 | 2;
@@ -22,6 +22,7 @@ type Step = 0 | 1 | 2;
 export default function PublicReportPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = use(params);
   const { t, locale, setLocale } = useI18n();
+  usePageTitle(t("Report an emergency"));
   const intake = useQuery({ queryKey: ["intake", slug], queryFn: () => api.public.intake(slug), retry: false });
   const openedAt = useRef(Date.now());
 
@@ -334,10 +335,11 @@ export default function PublicReportPage({ params }: { params: Promise<{ slug: s
 }
 
 function Shell({ children, right }: { children: React.ReactNode; right?: React.ReactNode }) {
+  const t = useT();
   return (
     <div className="min-h-dvh bg-background">
       <header className="flex items-center justify-between border-b px-4 py-2">
-        <Logo size="sm" className="text-sm" />
+        <Logo size="sm" className="text-sm" product={t("Report")} />
         {right}
       </header>
       <main className="mx-auto w-full max-w-md px-4 pt-4">{children}</main>

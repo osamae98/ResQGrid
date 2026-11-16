@@ -17,12 +17,14 @@ import { useCapabilities } from "@/lib/queries";
 import { useSession } from "@/lib/session";
 import { cn } from "@/lib/utils";
 import { km } from "@/lib/format";
+import { usePageTitle } from "@/lib/hooks";
 import { useT } from "@/lib/i18n";
 
 const STEPS = ["Organisation", "Operating area", "First team", "Escalation", "Public link"];
 
 function Wizard() {
   const tr = useT();
+  usePageTitle(tr("Set up your organization"));
   const { org } = useSession();
   const router = useRouter();
   const qc = useQueryClient();

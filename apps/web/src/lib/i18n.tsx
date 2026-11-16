@@ -293,7 +293,7 @@ const ar: Record<string, string> = {
   "Request override for": "طلب تجاوز لـ",
   "Request override…": "طلب تجاوز…",
   "Required capabilities": "القدرات المطلوبة",
-  "ResQGrid home": "الصفحة الرئيسية لـ ResQGrid",
+  "RescueGrid home": "الصفحة الرئيسية لـ RescueGrid",
   "Reserve resources": "حجز الموارد",
   "Reserved": "تم حجز",
   "Restore": "استعادة",
@@ -750,6 +750,11 @@ const ar: Record<string, string> = {
   "on a task": "في مهمة",
   "Account": "الحساب",
   "Use a negative number to remove stock.": "استخدم رقمًا سالبًا لسحب كمية من المخزون.",
+  "Console": "لوحة التحكم",
+  "Report status": "حالة البلاغ",
+  "Responder": "المستجيب",
+  "Create your organization": "أنشئ مؤسستك",
+  "Set up your organization": "إعداد مؤسستك",
 };
 
 const dict: Record<Locale, Record<string, string>> = { en: {}, ar };

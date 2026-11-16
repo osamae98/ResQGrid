@@ -16,7 +16,7 @@ import { Field, Input, Textarea } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { api, errorMessage } from "@/lib/api";
 import { ago, dateTime, km, OUTCOME_LABEL, since } from "@/lib/format";
-import { useNow } from "@/lib/hooks";
+import { useNow, usePageTitle } from "@/lib/hooks";
 import { useT } from "@/lib/i18n";
 import { useLocationSharing } from "@/lib/location-sharing";
 import { qk, useTasks, useTeams } from "@/lib/queries";
@@ -29,6 +29,7 @@ const UNDO_MS = 5000;
 
 export default function ResponderHome() {
   const t = useT();
+  usePageTitle(t("Responder"));
   const { user } = useSession();
   const qc = useQueryClient();
   const router = useRouter();

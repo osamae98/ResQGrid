@@ -41,6 +41,7 @@ import { ago, CATEGORY_LABEL, initials, ROLE_LABEL } from "@/lib/format";
 import { useT } from "@/lib/i18n";
 import { useNotifications } from "@/lib/queries";
 import { playCriticalSound, unlockSound, useRealtime, useRealtimeEvent, useSoundReady } from "@/lib/realtime";
+import { usePageTitle } from "@/lib/hooks";
 import { homeFor, useSession } from "@/lib/session";
 import { useConsoleTheme } from "@/lib/theme";
 import { cn } from "@/lib/utils";
@@ -89,6 +90,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   // The nav hides pages a role can't use; this also covers typing the URL directly.
   const section = NAV.find((n) => pathname === n.href || pathname.startsWith(n.href + "/"));
   const blocked = !!user && !!section && !section.roles.includes(user.role);
+  usePageTitle(section ? t(section.label) : pathname.startsWith("/tasks/") ? t("Task") : undefined);
 
   // Mobile menu: Esc closes it, and so does a route change (e.g. browser back).
   useEffect(() => {
@@ -188,8 +190,8 @@ function TopBar({ onMenu, menuOpen }: { onMenu: () => void; menuOpen: boolean })
       <Button variant="ghost" size="icon" className="md:hidden" onClick={onMenu} aria-label={menuOpen ? tr("Close menu") : tr("Open menu")} aria-expanded={menuOpen} aria-controls="main-nav">
         {menuOpen ? <X /> : <Menu />}
       </Button>
-      <Link href="/" aria-label={tr("ResQGrid home")}>
-        <Logo hideWordmark="sm" />
+      <Link href="/" aria-label={tr("RescueGrid home")}>
+        <Logo hideWordmark="sm" product={tr("Console")} />
       </Link>
       <div className="ms-auto flex min-w-0 items-center gap-1">
         {DEMO_MODE && user && (user.role === "dispatcher" || user.role === "admin") ? (

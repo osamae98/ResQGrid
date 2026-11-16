@@ -42,3 +42,13 @@ export function useCopy(ms = 2000) {
   };
   return { state, copy };
 }
+
+/**
+ * Sets the browser tab to "<page> · RescueGrid" in the current language. Client pages can't export
+ * `metadata`, and the tab title is how people find the right tab during an incident.
+ */
+export function usePageTitle(page?: string) {
+  useEffect(() => {
+    document.title = page ? `${page} · RescueGrid` : "RescueGrid";
+  }, [page]);
+}

@@ -16,6 +16,7 @@ import { Field, Input } from "@/components/ui/input";
 import { api, errorMessage } from "@/lib/api";
 import { DEMO_MODE } from "@/lib/flags";
 import { ROLE_LABEL } from "@/lib/format";
+import { usePageTitle } from "@/lib/hooks";
 import { useT } from "@/lib/i18n";
 import { qk } from "@/lib/queries";
 import { homeFor } from "@/lib/session";
@@ -44,6 +45,7 @@ const ROLE_HINT: Record<Role, string> = {
 
 function LoginInner() {
   const t = useT();
+  usePageTitle(t("Sign in"));
   const router = useRouter();
   const next = useSearchParams().get("next");
   const qc = useQueryClient();

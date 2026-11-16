@@ -12,11 +12,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { api, errorMessage } from "@/lib/api";
 import { ago, REPORT_STATUS_LABEL } from "@/lib/format";
+import { usePageTitle } from "@/lib/hooks";
 import { useT } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 function StatusInner({ slug }: { slug: string }) {
   const t = useT();
+  usePageTitle(t("Report status"));
   const router = useRouter();
   const ref = useSearchParams().get("ref") ?? "";
   const [input, setInput] = useState(ref);
@@ -27,7 +29,7 @@ function StatusInner({ slug }: { slug: string }) {
   return (
     <div className="min-h-dvh bg-background">
     <header className="flex items-center justify-between border-b px-4 py-2">
-      <Logo size="sm" className="text-sm" />
+      <Logo size="sm" className="text-sm" product={t("Report")} />
       <LanguageToggle />
     </header>
     <main className="mx-auto flex w-full max-w-md flex-col gap-4 px-4 py-8">

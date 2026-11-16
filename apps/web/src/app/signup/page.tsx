@@ -12,6 +12,7 @@ import { Logo } from "@/components/shell/logo";
 import { Button } from "@/components/ui/button";
 import { Field, Input } from "@/components/ui/input";
 import { api, errorMessage } from "@/lib/api";
+import { usePageTitle } from "@/lib/hooks";
 import { useT } from "@/lib/i18n";
 import { qk } from "@/lib/queries";
 
@@ -28,6 +29,7 @@ export default function SignupPage() {
   const router = useRouter();
   const qc = useQueryClient();
   const t = useT();
+  usePageTitle(t("Create your organization"));
   const { register, handleSubmit, formState, setValue, getValues, watch } = useForm<Form>({ resolver: zodResolver(schema) });
   const slug = watch("slug");
   const signup = useMutation({
@@ -67,7 +69,7 @@ export default function SignupPage() {
                 })}
               />
             </Field>
-            <Field label={t("Public link")} hint={`resqgrid.app/r/${slug || t("your-link")}`} error={err(e.slug?.message)}>
+            <Field label={t("Public link")} hint={`rescuegrid.app/r/${slug || t("your-link")}`} error={err(e.slug?.message)}>
               <Input {...register("slug")} dir="ltr" className="h-11 font-mono text-base sm:text-sm" />
             </Field>
             <Field label={t("Your name")} error={err(e.admin_name?.message)}>

@@ -1,6 +1,6 @@
-# ResQGrid — frontend
+# RescueGrid frontend
 
-Web app for the ResQGrid MVP (PRD v3). The backend doesn't exist yet, so the app ships with an
+Web app for the RescueGrid MVP (PRD v3). The backend doesn't exist yet, so the app ships with an
 in-process **mock API** that speaks the PRD's REST and event shapes. Pointing the app at the real
 FastAPI service later is a config change.
 

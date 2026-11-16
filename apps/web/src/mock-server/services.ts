@@ -966,7 +966,7 @@ export function setDuty(ctx: Ctx, onDuty: boolean, userId = ctx.user.id) {
 export function sweep(db: DB) {
   const now = Date.now();
   for (const org of db.orgs) {
-    const sys = { db, orgId: org.id, user: { id: "system", name: "ResQGrid", role: "admin" } as User };
+    const sys = { db, orgId: org.id, user: { id: "system", name: "RescueGrid", role: "admin" } as User };
     const policy = (p: Priority) => db.policies[org.id].find((x) => x.priority === p)!;
     const dispatchers = usersWithRole(db, org.id, ["dispatcher"]);
     const admins = usersWithRole(db, org.id, ["admin"]);
@@ -994,7 +994,7 @@ export function sweep(db: DB) {
         const next = over >= timeout && r.priority === "critical" ? 2 : over >= 0 ? 1 : 0;
         if (next > t.escalation_level) {
           t.escalation_level = next as 1 | 2;
-          taskEvent(db, org.id, t, "escalated", undefined, undefined, "ResQGrid", `Level ${next}: not accepted after ${mins} min`);
+          taskEvent(db, org.id, t, "escalated", undefined, undefined, "RescueGrid", `Level ${next}: not accepted after ${mins} min`);
           emitTask(sys, t, "task.escalated", { level: next, minutes_waiting: mins });
           notify(db, org.id, next === 2 ? [...dispatchers, ...admins] : dispatchers, {
             type: "task.escalated",
